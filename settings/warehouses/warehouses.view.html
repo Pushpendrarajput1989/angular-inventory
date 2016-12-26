@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Glaucus UI</title>
+    <link href="settings/warehouses/warehouses.css" rel="stylesheet">
+
+</head>
+
+<body ng-app="tableApp">
+    <div ng-include src="'menuBar/secureMenuBar.html'"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12 row-margin-top-small">
+                <button type="button" class="btn add-button font pull-right" style="min-width: 200px;" data-toggle="modal" data-target="#addWarehouseModal">
+                  <img width="20px" height="20px" color="white" src="images/svg/add.svg"> &nbsp;Add Warehouse
+              </button>
+            </div>
+        </div>
+        <div class="row main-list">
+            <table class="table table-striped-custom table-condensed table-responsive table-hover">
+                <thead class="main-list-header-warehouses">
+                    <tr>
+                        <td>Warehouse Name</td>
+                        <td>Warehouse Type</td>
+                        <td>State</td>
+                        <td>Location</td>
+                        <td>Phone No.</td>
+                        <td>Email ID</td>
+                        <td>Status</td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tbody data-ng-repeat="warehouseData in wareHouseLists" data-ng-switch on="dayDataCollapse[$index]">
+                    <tr class="clickable-row-warehouses">
+                        <td>{{warehouseData.tableWarehouseDetailsLongname}}</td>
+                        <td>{{warehouseData.tableWarehouseType.tableWarehouseTypeString}}</td>
+                        <td>{{warehouseData.tableAddress.tableCity.tableDistrict.tableState.tableStateLongName}}</td>
+                        <td>{{warehouseData.tableAddress.tableAddress1}}, {{warehouseData.tableAddress.tableAddress2}}, {{warehouseData.tableAddress.tableCity.tableCityLongName}} - {{warehouseData.tableAddress.tableAddressPin}}</td>
+                        <td>{{warehouseData.tableAddress.tableAddressPhone1}}</td>
+                        <td>{{warehouseData.tableAddress.tableAddressEmail1}}</td>
+                        <td class="actionable-status" ng-click="warehouseAction(warehouseData.tableWarehouseDetailsStatus,warehouseData.tableAddress.tableCity.tableDistrict.tableState, warehouseData.idtableWarehouseDetailsId)" ng-if="warehouseData.tableWarehouseDetailsStatus != 'Verified' && warehouseData.tableWarehouseDetailsStatus != 'Operational'">{{warehouseData.tableWarehouseDetailsStatus}}</td>
+                        <td class="non-actionable-status" ng-if="warehouseData.tableWarehouseDetailsStatus == 'Verified' || warehouseData.tableWarehouseDetailsStatus == 'Operational'">{{warehouseData.tableWarehouseDetailsStatus}}</td>
+                        <td ng-show="dayDataCollapse == null || dayDataCollapse == undefined || dayDataCollapse == []"><img src="images/svg/expand_icon.svg" height="22" /></td>
+                        <td data-ng-switch-when="false"><img src="images/svg/expand_icon.svg" height="22" data-ng-click="selectTableRow($index, warehouseData.idtableWarehouseDetailsId);selectedStates(warehouseData.idtableWarehouseDetailsId)" /></td>
+                        <td data-ng-switch-when="true" data-ng-click="selectTableRow($index, warehouseData.idtableWarehouseDetailsId);
+                        selectedStates(warehouseData.idtableWarehouseDetailsId)"><img src="images/svg/collaps_icon.svg" height="22" /></td>
+                    </tr>
+
+                    <tr data-ng-switch-when="true" class="warehouses-acc-data-row">
+                        <td colspan="8">
+                            <!-- Header Row -->
+                            <div class="row">
+                                <div class="col-xs-11 selectedLocMarginLeft">
+                                    Selected Location
+                                </div>
+                            </div>
+                            <hr>
+                            <span ng-repeat="wStates in warehouseStatesById" class="selectedLocMarginLeft">
+                                {{wStates.tableStateLongName}} <i class="fa fa-times" style="cursor: pointer;" aria-hidden="true" ng-click="deleteStatesForWarehouses(warehouseData.idtableWarehouseDetailsId,wStates.idtableStateId)"></i>
+                            </span>
+                            <hr>
+                            <div class="row">
+                                <div class="col-xs-11 selectedLocMarginLeft">
+                                    Add New Location
+                                </div>
+                                <div class="col-xs-1">
+                                    <button ng-disabled="selected.length==0" ng-click="addStates(selected,warehouseData.idtableWarehouseDetailsId);">Add</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <input class="searchStates-bottom-border" ng-model="search.tableStateLongName" placeholder="Search States">
+                            <div layout="row" class="selectedLocMarginLeft" layout-wrap="" flex="" style="margin-top: 20px">
+                                <div flex="20" ng-repeat="states in filtered = ( nonwarehouseStatesById | filter:search )">
+                                    <md-checkbox ng-checked="exists(states, selected)" ng-click="toggle(states, selected)">
+                                        {{ states.tableStateLongName }} <span ng-if="exists(states, selected)"></span>
+                                    </md-checkbox>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <!-- END TABLE -->
+            <div class="row pagination-row" style="margin-top: 0px;">
+                <div class="col-md-6">
+                    <p class="showingOrderLabel" ng-show="size<warehousesCount">Showing Warehouses {{start + 1}} to {{size}} of {{warehousesCount}}
+                    </p>
+                    <p class="showingOrderLabel" ng-show="size>=warehousesCount">Showing Warehouses {{start + 1}} to {{warehousesCount}} of {{warehousesCount}}
+                    </p>
+                    <p class="showingOrderLabel" ng-show="warehousesCount==0">No Warehouses Available
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <span class="pull-right">
+                        <!-- pager -->
+                        <ul ng-if="vmPager.pages.length && modeWarehouse=='normal'" class="pagination">
+                            <li ng-show="vmPager.currentPage == 1" ng-class="{disabled:vmPager.currentPage === 1}">
+                                <a>&lt;&lt; First</a>
+                            </li>
+                            <li ng-show="vmPager.currentPage > 1" ng-class="{disabled:vmPager.currentPage === 1}">
+                                <a ng-click="listOfWarehousesCount(1)">&lt;&lt; First</a>
+                            </li>
+                            <li ng-show="vmPager.currentPage == 1" ng-class="{disabled:vmPager.currentPage == 1}">
+                                <a>&lt; Previous</a>
+                            </li>
+                            <li ng-show="vmPager.currentPage > 1" ng-class="{enabled:vmPager.currentPage > 1}">
+                                <a ng-click="listOfWarehousesCount(vmPager.currentPage - 1)">&lt; Previous</a>
+                            </li>
+                            <li ng-repeat="page in vmPager.pages" ng-class="{active:vmPager.currentPage === page}">
+                                <a ng-click="listOfWarehousesCount(page)">{{page}}</a>
+                            </li>
+                            <li ng-show="vmPager.currentPage < vmPager.totalPages" ng-class="{enabled:vmPager.currentPage > vmPager.totalPages}">
+                            <a ng-click="listOfWarehousesCount(vmPager.currentPage + 1)">Next &gt;</a>
+                            </li>
+                            <li ng-show="vmPager.currentPage == vmPager.totalPages" ng-class="{disabled:vmPager.currentPage == vmPager.totalPages}">
+                                <a>Next &gt;</a>
+                            </li>
+                            <li ng-show="vmPager.currentPage < vmPager.totalPages" ng-class="{disabled:vmPager.currentPage === vmPager.totalPages}">
+                                <a ng-click="listOfWarehousesCount(vmPager.totalPages)">Last &gt;&gt;</a>
+                            </li>
+                            <li ng-show="vmPager.currentPage == vmPager.totalPages" ng-class="{disabled:vmPager.currentPage === vmPager.totalPages}">
+                                <a>Last &gt;&gt;</a>
+                            </li>
+                        </ul>
+                        <ul ng-if="vmPager.pages.length && modeWarehouse=='mutual'" class="pagination">
+                          <li ng-show="vmPager.currentPage == 1" ng-class="{disabled:vmPager.currentPage === 1}">
+                              <a>&lt;&lt; First</a>
+                          </li>
+                          <li ng-show="vmPager.currentPage > 1" ng-class="{disabled:vmPager.currentPage === 1}">
+                              <a ng-click="listOfMutualVendorsCount(1)">&lt;&lt; First</a>
+                          </li>
+                            <li ng-show="vmPager.currentPage == 1" ng-class="{disabled:vmPager.currentPage == 1}">
+                                <a>&lt; Previous</a>
+                            </li>
+                            <li ng-show="vmPager.currentPage > 1" ng-class="{enabled:vmPager.currentPage > 1}">
+                                <a ng-click="listOfMutualVendorsCount(vmPager.currentPage - 1)">&lt; Previous</a>
+                            </li>
+                            <li ng-repeat="page in vmPager.pages" ng-class="{active:vmPager.currentPage === page}">
+                                <a ng-click="listOfMutualVendorsCount(page)">{{page}}</a>
+                            </li>
+                            <li ng-show="vmPager.currentPage < vmPager.totalPages" ng-class="{enabled:vmPager.currentPage > vmPager.totalPages}">
+                                <a ng-click="listOfMutualVendorsCount(vmPager.currentPage + 1)">Next &gt;</a>
+                            </li>
+                            <li ng-show="vmPager.currentPage == vmPager.totalPages" ng-class="{disabled:vmPager.currentPage == vmPager.totalPages}">
+                                <a>Next &gt;</a>
+                            </li>
+                            <li ng-show="vmPager.currentPage < vmPager.totalPages" ng-class="{disabled:vmPager.currentPage === vmPager.totalPages}">
+                                <a ng-click="listOfMutualVendorsCount(vmPager.totalPages)">Last &gt;&gt;</a>
+                            </li>
+                            <li ng-show="vmPager.currentPage == vmPager.totalPages" ng-class="{disabled:vmPager.currentPage === vmPager.totalPages}">
+                                <a>Last &gt;&gt;</a>
+                            </li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal fade" id="addWarehouseModal" role="dialog" aria-labelledby="addWarehouseLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width: 800px;">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+                        <p class="dialog-heading-p" id="addWarehouseLabel">Add Warehouse</p>
+                    </div>
+                    <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+                        <div class="container-fluid">
+                            <div class="row row-margin-top-large row-margin-bottom-large text-center">
+                                <div class="col-md-6 light-grey-right-border">
+                                    <div class="add-glaucus-warehouse-img" data-toggle="modal" data-target="#addGlaucusWarehouseModal"></div>
+                                    <br>
+                                    <span class="add-warehouse-text" data-toggle="modal" ng-click="cleanEv()" data-target="#addGlaucusWarehouseModal">Add Glaucus Warehouse</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="add-own-warehouse-img" data-toggle="modal" data-target="#addOwnWarehouseModal"></div>
+                                    <br>
+                                    <span class="add-warehouse-text" data-toggle="modal" data-target="#addOwnWarehouseModal">Add your Own Warehouse</span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="background-color: #30373B; min-height: 60px;">
+                        <button type="button" class="cancel-btn" data-dismiss="modal">
+                          Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="addOwnWarehouseModal" role="dialog" aria-labelledby="addOwnWarehouseLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width: 1000px;">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                        <button type="button" class="close" ng-click="clearWareHouseData()">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+                        <p class="dialog-heading-p" id="addOwnWarehouseLabel">Add your Own Warehouse</p>
+                    </div>
+                    <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+                        <div class="container-fluid">
+                            <div class="row row-margin-top">
+                                <div class="col-md-4 font margin-top-5">Select the State of Warehouse</div>
+                                <div class="col-md-4">
+                                    <select ng-class="{submitted: ownStateDataSelected}" ng-model="stateData" class="form-control" ng-options="option as option.tableStateLongName for option in regionsStatesArray" ng-change="regionsStatesDistrictData(stateData);">
+                                    <option value="">Select</option>
+                                </select>
+                                </div>
+                            </div>
+
+                            <div class="row row-margin-top" ng-show="isStateWarehouseSelected">
+                                <div class="col-md-4 font margin-top-5">Select the District of Warehouse</div>
+                                <div class="col-md-4">
+                                    <select ng-class="{submitted: ownDistrictDataSelected}" ng-model="districtData" class="form-control" ng-options="option as option.tableDistrictLongName for option in regionsStatesDistrictArray" ng-change="regionsStatesDistrictsCityData(stateData,districtData);">
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4"></div>
+                            </div>
+
+                            <div class="row row-margin-top" ng-show="isDistrictWarehouseSelected">
+                                <div class="col-md-4 font margin-top-5">Select the City of Warehouse</div>
+                                <div class="col-md-4">
+                                    <select ng-class="{submitted: ownCityDataSelected}" ng-model="cityData" class="form-control" ng-options="option as option.tableCityLongName for option in regionsStatesDistrictsCityArray" ng-change="changeCity(cityData);">
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row row-margin-top" ng-show="isCityWarehouseSelected">
+                                <div class="col-md-4 font margin-top-5">
+                                    Warehouse Details
+                                </div>
+                            </div>
+                            <div class="add-warehouse-info margin-top-10 margin-bottom-10 padding-bottom-10" ng-show="isCityWarehouseSelected">
+                                <div class="row margin-top-10">
+                                    <div class="col-md-3 font margin-top-5 margin-left-10">
+                                        Warehouse Short Name
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" ng-class="{submitted: ownShortNameEntered}" ng-change="checkOwnShortName(tableAddress.tableWarehouseDetailsShortname)" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="tableAddress.tableWarehouseDetailsShortname">
+                                    </div>
+                                </div>
+                                <div class="row margin-top-10">
+                                    <div class="col-md-3 font margin-top-5 margin-left-10">
+                                        Warehouse Long Name
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" ng-class="{submitted: ownLongNameEntered}" ng-change="checkOwnLongName(tableAddress.tableWarehouseDetailsLongname)" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="tableAddress.tableWarehouseDetailsLongname">
+                                    </div>
+                                </div>
+
+                                <div class="row margin-top-10">
+                                    <div class="col-md-3 font margin-top-5 margin-left-10">
+                                        Contact Person Name
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" ng-class="{submitted: ownCPersonNameEntered}" ng-change="checkOwnCPersonName(tableAddress.tableAddressContactPerson1)" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="tableAddress.tableAddressContactPerson1">
+                                    </div>
+                                </div>
+
+                                <div class="row margin-top-10">
+                                    <div class="col-md-3 font margin-top-5 margin-left-10">
+                                        Contact Person Email
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="email" ng-class="{submitted: ownPersonEmailEntered}" ng-change="checkOwnPersonEmail(tableAddress.tableAddressEmail1)" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="tableAddress.tableAddressEmail1">
+                                    </div>
+                                </div>
+
+                                <div class="row margin-top-10">
+                                    <div class="col-md-3 font margin-top-5 margin-left-10">
+                                        Contact Person Phone
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" ng-keypress="Num($event)" ng-class="{submitted: ownPersonPhoneEntered}" ng-change="checkOwnPersonPhone(tableAddress.tableAddressPhone1)" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="tableAddress.tableAddressPhone1">
+                                    </div>
+                                </div>
+
+                                <div class="row margin-top-10">
+                                    <div class="col-md-3 font margin-top-5 margin-left-10">
+                                        Address Line 1
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" ng-class="{submitted: ownAddrLine1Entered}" ng-change="checkOwnAddrLine1(tableAddress.tableAddress1)" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="tableAddress.tableAddress1">
+                                    </div>
+                                </div>
+
+                                <div class="row margin-top-10">
+                                    <div class="col-md-3 font margin-top-5 margin-left-10">
+                                        Address Line 2
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="tableAddress.tableAddress2">
+                                    </div>
+                                </div>
+
+                                <div class="row margin-top-10">
+                                    <div class="col-md-3 font margin-top-5 margin-left-10">
+                                        Address Line 3
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="tableAddress.tableAddress3">
+                                    </div>
+                                </div>
+
+                                <div class="row margin-top-10">
+                                    <div class="col-md-3 font margin-top-5 margin-left-10">
+                                        Pin No
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input ng-class="{submitted: ownPinCodeEntered}" ng-change="checkOwnPinCode(tableAddress.tableAddressPin)" type="number" min="0" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="tableAddress.tableAddressPin">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="background-color: #30373B; min-height: 60px;">
+                        <button type="button" class="cancel-btn" ng-click="clearWareHouseData()">Cancel</button>
+                        <button type="button" class="action-btn" ng-click="addOwnGlaucusWareHouses()">Done</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal fade" id="addGlaucusWarehouseModal" role="dialog" aria-labelledby="addGlaucusWarehouseLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width: 1000px;">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                        <button type="button" class="close" ng-click="clearWareHouseData()">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+                        <p class="dialog-heading-p" id="addGlaucusWarehouseLabel">Add Glaucus Warehouse</p>
+                    </div>
+                    <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+                        <div class="container-fluid">
+                            <div class="row row-margin-top">
+                                <div class="col-md-4 font margin-top-5">Select the State of Warehouse</div>
+                                <div class="col-md-4">
+                                    <select ng-class="{submitted: glStateDataSelected}" ng-model="stateData" class="form-control" ng-options="option as option.tableStateLongName for option in regionsStatesArray" ng-change="getVatTin(stateData);getStateWiseWarehouses(stateData)">
+                                    <option value="">Select</option>
+                                </select>
+                                </div>
+                                <div class="col-md-4 warehouse-info" ng-show="vatTinData">
+                                    Warehouse mapped with <br /> <b>VAT/TIN - {{vatTinData.tableClientStateWiseVatNo}}</b>
+                                </div>
+
+                                <div class="col-md-2" ng-show="!vatTinData && isStateWarehouseSelected">
+                                    <input type="number" ng-class="{submitted: glVatTinEntered}" min="0" ng-model="tableClientStateWiseVatNo" placeholder="VAT/TIN No." class="form-control darkgrey-bottom-border font" ng-change="hideShowDownloadVatLink(tableClientStateWiseVatNo);" />
+                                </div>
+                                <div class="col-md-2 margin-top-7 download-vat-link" ng-show="!vatTinData && isStateWarehouseSelected && showDownloadVatLink">
+                                    {{vatFormUrl = formsUrl + 'vatforms/' + stateData.idtableStateId + '/vatform.zip';""}}
+                                    <a href="{{vatFormUrl}}">Download VAT.zip</a>
+                                </div>
+                            </div>
+                            <div class="row row-margin-top" ng-show="isStateWarehouseSelected">
+                                <div class="col-md-4 font margin-top-5">Select the Warehouse</div>
+                                <div class="col-md-4">
+                                    <select ng-class="{submitted: glWarehouseSelected}" ng-model="glwarehouseData" class="form-control" ng-options="option as option.tableWarehouseDetailsLongname for option in stateWareHouses" ng-change="warehouseSelected(glwarehouseData)">
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row row-margin-top" ng-show="isWarehouseSelected">
+                                <div class="col-md-4 font margin-top-5">Do you have APOB registered?</div>
+                                <div class="col-md-4">
+                                    <md-radio-group ng-model="apobOrNot">
+                                        <md-radio-button value="apob" class="md-primary" ng-style="{'display':'inline'}"> Yes&nbsp;&nbsp;&nbsp;</md-radio-button>
+                                        <md-radio-button value="noApob" class="md-primary" ng-style="{'display':'inline'}"> No </md-radio-button>
+                                    </md-radio-group>
+                                </div>
+                            </div>
+
+                            <div class="row row-margin-top" ng-show="apobOrNot == 'apob'">
+                                <div class="col-md-4 font">Upload APOB Documents</div>
+                                <div class="col-md-6">
+                                    <!-- File Upload -->
+                                    <div ng-class="{dropBoxSubmitted: glApobDocsSelected}" csv-reader ngf-drop ngf-select ng-model="apobDocs" class="drop-box" ngf-drag-over-class="'dragover'" accept=".pdf,.zip" ngf-pattern="'.pdf,.zip'" ng-change="isValidApobDocs()">
+                                        <img src="images/svg/upload_icon_1.svg" style="height: 40px; width: 40px;" /> &nbsp;&nbsp;Drag file to upload or click to select
+                                    </div>
+                                    <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+                                </div>
+                            </div>
+                            <div class="row row-margin-top-small" ng-show="apobOrNot == 'apob'">
+                                <div class="col-md-4"></div>
+                                <div class="col-md-6 font">File:&nbsp;&nbsp;{{apobDocs.name}}</div>
+                            </div>
+
+
+                            <div class="row row-margin-top add-warehouse-info" ng-show="apobOrNot == 'noApob'">
+                                <div class="col-md-12 add-warehouse-info-heading1">
+                                    For New APOB Application
+                                    <hr class="bold-hr"> Please Contact <a ng-click="contactGlaucus();" data-toggle="modal" data-target="#contactGlaucus">Glaucus</a> for further details
+                                </div>
+                                <div class="col-md-12 add-warehouse-info-heading2">Or</div>
+                                <div class="col-md-12 add-warehouse-info-heading3">
+                                    {{apobFormUrl = formsUrl + 'apobforms' + glwarehouseData.idtableWarehouseDetailsId + '/apob.zip';""}} Download Application Form here - <a href="{{apobFormUrl}}">APOB.zip</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="background-color: #30373B; min-height: 60px;">
+                        <button type="button" class="cancel-btn" ng-click="clearWareHouseData()">Cancel</button>
+                        <button type="button" class="action-btn" ng-click="addGlaucusWarehouse()">Done</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="uploadAppDocModal" role="dialog" aria-labelledby="uploadAppDocLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width: 1000px;">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                        <button type="button" class="close" ng-click="clearWareHouseData()">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+                        <p class="dialog-heading-p" id="uploadAppDocLabel">Upload APOB Documents</p>
+                    </div>
+                    <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+                        <div class="container-fluid">
+
+                            <div class="row row-margin-top">
+                                <div class="col-md-4 font">Upload APOB Documents</div>
+                                <div class="col-md-6">
+                                    <!-- File Upload -->
+                                    <div csv-reader ngf-drop ngf-select ng-model="apobDocs" class="drop-box" ngf-drag-over-class="'dragover'" accept=".pdf,.zip" ngf-pattern="'.pdf,.zip'">
+                                        <img src="images/svg/upload_icon_1.svg" style="height: 40px; width: 40px;" /> &nbsp;&nbsp;Drag file to upload or click to select
+                                    </div>
+                                    <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+                                </div>
+                            </div>
+                            <div class="row row-margin-top-small" ng-show="vatTinData!=''">
+                                <div class="col-md-4"></div>
+                                <div class="col-md-6 font">File:&nbsp;&nbsp;{{apobDocs.name}}</div>
+                            </div>
+
+                            <div class="row row-margin-top add-warehouse-info">
+                                <div class="col-md-12 add-warehouse-info-heading1">
+                                    For New APOB Application
+                                    <hr class="bold-hr"> Please Contact <a ng-click="contactGlaucus();" data-toggle="modal" data-target="#contactGlaucus">Glaucus</a> for further details
+                                </div>
+                                <div class="col-md-12 add-warehouse-info-heading2">Or</div>
+                                <div class="col-md-12 add-warehouse-info-heading3">
+                                    {{apobFormUrl = formsUrl + 'apobforms' + warehouseId + '/apob.zip';""}} Download Application Form here - <a href="{{apobFormUrl}}">APOB.zip</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="background-color: #30373B; min-height: 60px;">
+                        <button type="button" class="cancel-btn" ng-click="clearWareHouseData()">Cancel</button>
+                        <button type="button" class="action-btn" ng-click="uploadApplicationDocs(warehouseId)">Done</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="vatTinDialog" role="dialog" aria-labelledby="vatTinDialogLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width: 800px;">
+                <div class="modal-content">
+                    <form name="vatTinInfoForm">
+                        <!-- Modal Header -->
+                        <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                            <button type="button" class="close" ng-click="clearWareHouseData()">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+                            <p class="dialog-heading-p" id="vatTinDialogLabel">VAT Not Provided</p>
+                        </div>
+                        <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+                            <div class="container-fluid">
+                                <form name="vatTinInfoForm">
+                                    <div class="row row-margin-top">
+                                        <div class="col-md-4 font margin-top-5">Enter VAT/TIN No.</div>
+                                        <div class="col-md-4">
+                                            <input ng-class="{submitted:vatTinEntered}" required id="vatTinNo" name="vatTinNo" type="number" min="0" ng-model="vatTinNo" placeholder="VAT/TIN No." class="form-control darkgrey-bottom-border font" ng-change="checkEmptyValue()">
+                                        </div>
+                                    </div>
+
+                                    <div class="row row-margin-top">
+                                        <div class="col-md-4 font margin-top-5">Do you have APOB registered?</div>
+                                        <div class="col-md-4">
+                                            <md-radio-group ng-model="apobOrNot">
+                                                <md-radio-button value="apob" class="md-primary" ng-style="{'display':'inline'}"> Yes&nbsp;&nbsp;&nbsp;</md-radio-button>
+                                                <md-radio-button value="noApob" class="md-primary" ng-style="{'display':'inline'}"> No </md-radio-button>
+                                            </md-radio-group>
+                                        </div>
+                                    </div>
+
+                                    <div class="row row-margin-top" ng-show="apobOrNot == 'apob'">
+                                        <div class="col-md-4 font">Upload APOB Documents</div>
+                                        <div class="col-md-6">
+                                            <!-- File Upload -->
+                                            <div csv-reader ngf-drop ngf-select ng-model="apobDocs" class="drop-box" ngf-drag-over-class="'dragover'" accept=".pdf,.zip" ngf-pattern="'.pdf,.zip'">
+                                                <img src="images/svg/upload_icon_1.svg" style="height: 40px; width: 40px;" /> &nbsp;&nbsp;Drag file to upload or click to select
+                                            </div>
+                                            <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+                                        </div>
+                                    </div>
+                                    <div class="row row-margin-top-small" ng-show="apobOrNot == 'apob'">
+                                        <div class="col-md-4"></div>
+                                        <div class="col-md-6 font">File:&nbsp;&nbsp;{{apobDocs.name}}</div>
+                                    </div>
+
+
+                                    <div class="row row-margin-top add-warehouse-info" ng-show="vatTinInfo.apobOrNot == 'noApob'">
+                                        <div class="col-md-12 add-warehouse-info-heading1">
+                                            For New APOB Application
+                                            <hr class="bold-hr"> Please Contact <a ng-click="contactGlaucus();" data-toggle="modal" data-target="#contactGlaucus">Glaucus</a> for further details
+                                        </div>
+                                        <div class="col-md-12 add-warehouse-info-heading2">Or</div>
+                                        <div class="col-md-12 add-warehouse-info-heading3">
+                                            {{apobFormUrl = formsUrl + 'apobforms' + warehouseId + '/apob.zip';""}} Download Application Form here - <a href="{{apobFormUrl}}">APOB.zip</a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="background-color: #30373B; min-height: 60px;">
+                            <button type="button" class="cancel-btn" ng-click="clearWareHouseData()">Cancel</button>
+                            <button type="button" class="action-btn" ng-click="updateVatTinInfo()">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="apobVerificationPending" role="dialog" aria-labelledby="apobVerificationPendingLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width: 800px;">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+                        <p class="dialog-heading-p" id="apobVerificationPendingLabel">APOB Not Verified</p>
+                    </div>
+                    <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+                        <div class="container-fluid">
+                            <div class="row row-margin-top-large row-margin-bottom-large text-center">
+                                <div class="col-md-12">
+                                    <span class="font">It will take 24-48 hours for Glaucus Team to verify the APOB Documents</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="background-color: #30373B; min-height: 60px;">
+                        <button type="button" class="cancel-btn" data-dismiss="modal">
+                          Ok
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="vatTinMsgDialog" role="dialog" aria-labelledby="vatTinMsgDialogLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width: 800px;">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+                        <p class="dialog-heading-p" id="vatTinMsgDialogLabel">VAT RC Not Verified</p>
+                    </div>
+                    <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+                        <div class="container-fluid">
+                            <div class="row row-margin-top-large row-margin-bottom-large text-center">
+                                <div class="col-md-12">
+                                    <span class="font">It will take 24-48 hours for Glaucus Team to verify the VAT Documents</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="background-color: #30373B; min-height: 60px;">
+                        <button type="button" class="cancel-btn" data-dismiss="modal">
+                          Ok
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="contactGlaucus" role="dialog" aria-labelledby="contactGlaucus" aria-hidden="true">
+            <div class="modal-dialog" style="width: 800px;">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+                        <p class="dialog-heading-p" id="apobVerificationPendingLabel">Contact Glaucus</p>
+                    </div>
+                    <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+                        <div class="container-fluid">
+                            <div class="row row-margin-top-large row-margin-bottom-large text-center">
+                                <div class="col-md-12">
+                                    <span class="font">Dear Seller, You email has been sent to Glaucus Team. Business Executive will contact you for further assistance.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="background-color: #30373B; min-height: 60px;">
+                        <button type="button" class="cancel-btn" data-dismiss="modal">
+                          Ok
+                      </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-include src="'settings/warehouses/contactGlaucus.html'"></div>
+</body>
+
+</html>

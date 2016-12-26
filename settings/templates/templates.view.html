@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Glaucus UI</title>
+    <link href="settings/templates/templates.css" rel="stylesheet">
+
+</head>
+
+<body ng-app="tableApp">
+    <div ng-include src="'menuBar/secureMenuBar.html'"></div>
+    <div ng-show="currentTab=='invoice'" ng-include src="'settings/templates/templateLists/invoiceTemplateList.html'"></div>
+    <div ng-show="currentTab=='packing'" ng-include src="'settings/templates/templateLists/packingTemplateList.html'"></div>
+    <div ng-show="currentTab=='email'" ng-include src="'settings/templates/templateLists/emailTemplateList.html'"></div>
+    <div ng-show="currentTab=='shipping'" ng-include src="'settings/templates/templateLists/shippingTemplateList.html'"></div>
+    <div ng-show="currentTab=='sticker'" ng-include src="'settings/templates/templateLists/stickerTemplateList.html'"></div>
+    <div ng-show="currentTab=='manifest'" ng-include src="'settings/templates/templateLists/manifestTemplateList.html'"></div>
+</body>
+
+</html>

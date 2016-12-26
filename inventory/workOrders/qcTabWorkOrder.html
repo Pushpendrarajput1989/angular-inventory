@@ -1,0 +1,124 @@
+<md-content class="md-padding" style="padding: 0px;overflow: hidden;">
+    <div class="row search-row-heading">
+        <md-toolbar class="md-small search-row-toolbar search-row">
+            <div class="md-toolbar-tools">
+                <md-icon md-svg-icon="images/svg/header_search.svg"></md-icon>
+                <span class="font">&nbsp;&nbsp;Search Work Order</span>
+                <span flex=""></span>
+                <md-button class="md-icon-button" aria-label="Favorite" ng-click="toggleQcSearchRow()">
+                    <md-icon ng-if="searchWorkOrderQcClicked==false" md-svg-icon="images/svg/expand_icon.svg"></md-icon>
+                    <md-icon ng-if="searchWorkOrderQcClicked==true" md-svg-icon="images/svg/collaps_icon.svg"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+    </div>
+    <div ng-show="searchWorkOrderQcClicked==true" class="row search-row search-row-content search-row-top-border">
+        <div layout="row">
+            <div class="inv-search-margin">
+                <span class="font">Select Warehouse</span>
+                <select ng-model="warehouseid" class="inventoryscreen-dropdown font" ng-change="callDisabledQc();">
+                    <option value="">
+                        Select
+                    </option>
+                    <option ng-repeat="option in wareHousesData"
+                        value="{{option.idtableWarehouseDetailsId}}">
+                        {{option.tableWarehouseDetailsShortname}}
+                    </option>
+                 </select>
+            </div>
+            <div>
+                <md-datepicker ng-model="start1Date" md-min-date="mainstartminDate" md-max-date="mainstartmaxDate" ng-change="mainsendStartDate(start1Date);callDisabledQc();" md-placeholder="Start Date" style="background-color: inherit;margin-top:3px;"></md-datepicker>
+                <md-datepicker ng-model="end1Date" md-min-date="mainendminDate" md-max-date="mainendmaxDate" ng-change="mainsendEndDate(end1Date);callDisabledQc();" md-placeholder="End Date" style="background-color: inherit;margin-top:3px;"></md-datepicker>
+                <button type="button" class="btn btn-default mybut" ng-disabled="isSubmitDisabledQc" ng-click="submitWorkOrderQcAction(warehouseid,start1Date,end1Date)">Submit</button>
+                <button title="Clear Applied Filters" ng-disabled="isResetDisabledQc" class="btn clearFilter" ng-click="clearAction4();warehouseid=null;start1Date=null;end1Date=null">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <button type="button" class="btn add-button font pull-right btn-top-margin" ng-click="showAddQcDialog($event)">Create New QC</button>
+        </div>
+    </div>
+    <div class="row main-list">
+        <table class="table table-striped-custom table-condensed table-responsive table-hover">
+            <thead class="main-list-header-wo">
+                <!-- table header -->
+                <tr>
+                    <td>Work Order Id</td>
+                    <td>SKU Name</td>
+                    <td>SKU ID</td>
+                    <td>Warehouse</td>
+                    <td>Date</td>
+                    <td>Action</td>
+                </tr>
+            </thead>
+            <tbody ng-repeat="workOrderqcData in workOrderqcLists">
+                <tr class="clickable-row-wo">
+                    <td>{{workOrderqcData.idtableWorkOrderId}}</td>
+                    <td>{{workOrderqcData.tableWorkOrderSkus[0].tableSku.tableSkuName}}</td>
+                    <td>{{workOrderqcData.tableWorkOrderSkus[0].tableSku.tableSkuClientSkuCode}}</td>
+                    <td>{{workOrderqcData.tableWarehouseDetails.tableWarehouseDetailsShortname}}</td>
+                    <td>{{workOrderqcData.tableWorkOrderDatetime[2]}}-{{workOrderqcData.tableWorkOrderDatetime[1]}}-{{workOrderqcData.tableWorkOrderDatetime[0]}}</td>
+                    <td>
+                        <img ng-src="{{imgsrc1}}" title="Edit" width="20px" height="20px" data-ng-click="editWorkOrders($event,workOrderqcData.idtableWorkOrderId,workOrderqcData.tableWorkOrderType.idtableWorkOrderTypeId)" ng-init="imgsrc1='images/svg/edit.svg'" ng-mouseover="imgsrc1='images/svg/edit_hover.svg'"
+                            ng-mouseout="imgsrc1='images/svg/edit.svg'" />&nbsp;|&nbsp;
+                        <img ng-if="workOrderqcData.tableWorkOrderStatusType.idtableWorkOrderStatusTypeId!=5" ng-src="{{imgsrc2}}" title="Cancel" width="20px" height="20px" data-ng-click="cancelWorkOrder(workOrderqcData.idtableWorkOrderId,workOrderqcData,$event)" ng-init="imgsrc2='images/svg/deactivate.svg'" ng-mouseover="imgsrc2='images/svg/deactivate_hover.svg'"
+                            ng-mouseout="imgsrc2='images/svg/deactivate.svg'" />
+                        <img ng-src="{{imgsrc2}}"  ng-if="workOrderqcData.tableWorkOrderStatusType.idtableWorkOrderStatusTypeId==5" style="pointer-events: none;cursor: default;" title="Cancel" width="20px" height="20px" data-ng-click="cancelWorkOrder(workOrderqcData.idtableWorkOrderId,workOrderqcData,$event)" ng-init="imgsrc2='images/svg/deactivate.svg'" ng-mouseover="imgsrc2='images/svg/deactivate_hover.svg'"
+                            ng-mouseout="imgsrc2='images/svg/deactivate.svg'" />                            
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- END TABLE -->
+        <div class="row" style="margin-top: 0px;">
+            <div class="col-md-6">
+                <p class="showingOrderLabel" ng-show="allworkOrderQcSize<workOrdQcCount">Showing QC {{allworkOrderQcStart + 1}} to {{allworkOrderQcSize}} of {{workOrdQcCount}}
+                </p>
+                <p class="showingOrderLabel" ng-show="allworkOrderQcSize>=workOrdQcCount && workOrdQcCount!=0">Showing QC {{allworkOrderQcStart + 1}} to {{workOrdQcCount}} of {{workOrdQcCount}}
+                </p>
+                <p class="showingOrderLabel" ng-show="workOrdQcCount==0">No QC Available
+                </p>                
+            </div>
+            <div class="col-md-6">
+                <span class="pull-right">
+                    <!-- pager -->
+                    <ul ng-if="vmPagerWoQcStart.pages.length" class="pagination">
+                        <li ng-show="vmPagerWoQcStart.currentPage == 1" ng-class="{disabled:vmPagerWoQcStart.currentPage === 1}">
+                            <a>&lt;&lt; First</a>
+                        </li>
+                        <li ng-show="vmPagerWoQcStart.currentPage > 1" ng-class="{disabled:vmPagerWoQcStart.currentPage === 1}">
+                            <a ng-click="listOfWorkOrderQcCount(1)">&lt;&lt; First</a>
+                        </li>
+                        <li ng-show="vmPagerWoQcStart.currentPage == 1" ng-class="{disabled:vmPagerWoQcStart.currentPage == 1}">
+                            <a>&lt; Previous</a>
+                        </li>
+                        <li ng-show="vmPagerWoQcStart.currentPage > 1" ng-class="{enabled:vmPagerWoQcStart.currentPage > 1}">
+                            <a ng-click="listOfWorkOrderQcCount(vmPagerWoQcStart.currentPage - 1)">&lt; Previous</a>
+                        </li>
+                        <li ng-repeat="page in vmPagerWoQcStart.pages" ng-class="{active:vmPagerWoQcStart.currentPage === page}">
+                            <a ng-click="listOfWorkOrderQcCount(page)">{{page}}</a>
+                        </li>
+                        <li ng-show="vmPagerWoQcStart.currentPage < vmPagerWoQcStart.totalPages" ng-class="{enabled:vmPagerWoQcStart.currentPage > vmPagerWoQcStart.totalPages}">
+                            <a ng-click="listOfWorkOrderQcCount(vmPagerWoQcStart.currentPage + 1)">Next &gt;</a>
+                        </li>
+                        <li ng-show="vmPagerWoQcStart.currentPage == vmPagerWoQcStart.totalPages" ng-class="{disabled:vmPagerWoQcStart.currentPage == vmPagerWoQcStart.totalPages}">
+                            <a>Next &gt;</a>
+                        </li>
+                        <li ng-show="vmPagerWoQcStart.currentPage < vmPagerWoQcStart.totalPages" ng-class="{disabled:vmPagerWoQcStart.currentPage === vmPagerWoQcStart.totalPages}">
+                            <a ng-click="listOfWorkOrderQcCount(vmPagerWoQcStart.totalPages)">Last &gt;&gt;</a>
+                        </li>
+                        <li ng-show="vmPagerWoQcStart.currentPage == vmPagerWoQcStart.totalPages" ng-class="{disabled:vmPagerWoQcStart.currentPage === vmPagerWoQcStart.totalPages}">
+                            <a>Last &gt;&gt;</a>
+                        </li>
+                    </ul>
+                </span>
+            </div>
+        </div>
+    </div>
+</md-content>
+<!-- Add New Kit Dialog -->
+<div ng-include src="'inventory/workOrders/addNewQcDialog.html'"></div>
+<div ng-include src="'inventory/workOrders/cancelWorkOrder.html'"></div>

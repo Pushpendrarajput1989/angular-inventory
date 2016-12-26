@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Glaucus UI</title>
+    <link href="settings/saleschannels/saleschannels.css" rel="stylesheet">
+
+</head>
+
+<body ng-app="tableApp">
+    <div ng-include src="'menuBar/secureMenuBar.html'"></div>
+    <div class="container-fluid sale-channel-container">
+        <div class="row" style="margin-left: auto; margin-right: auto;">
+            <div class="col-md-12">
+                <p class="screen-heading">Sale Channel</p>
+            </div>
+        </div>
+
+        <div class="row" style="margin-left: auto; margin-right: auto;">
+            <div class="col-md-4 sale-channel-list-heading">
+                Select the Sale Channel
+            </div>
+            <div class="col-md-8 sale-channel-name padding-left-35">
+                {{channelName}}
+            </div>
+        </div>
+
+        <div class="row margin-top-10" style="margin-left: auto; margin-right: auto;">
+            <div class="col-md-4 light-border">
+                <!-- ng-repeat on row -->
+                <div ng-repeat="channelData in saleChannelData" class="row sale-channel-row" ng-class="{active: isActive(channelData.tableSalesChannelMetaInfoName)}" ng-click="listOfSubSaleChannels(channelData)">
+                    <div>
+                        <img class="col-md-5 light-border sale-channel-img" ng-src="{{channelData.tableSalesChannelMetaInfoLogo}}">
+                    </div>
+                    <div class="col-md-7 sale-channel-name padding-top-21 padding-left-25">{{channelData.tableSalesChannelMetaInfoName}}</div>
+                </div>
+            </div>
+            <div class="col-md-8" ng-if="channelName">
+                <div class="row main-list padding-left-35 padding-top-0 padding-right-0">
+                    <table class="table table-striped-custom table-condensed table-responsive table-hover">
+                        <thead class="main-list-header-sc">
+                            <tr>
+                                <td>Name of Sale Channel</td>
+                                <td>Action</td>
+                            </tr>
+                        </thead>
+
+                        <!-- ng-repeat on tbody -->
+                        <tbody ng-repeat="subSaleChannelData in subSaleChannelData">
+                            <tr class="clickable-row-sc">
+                                <td>{{subSaleChannelData.tableSalesChannelValueInfoName}}</td>
+                                <td>
+                                    <img ng-src="{{imgsrc1}}" title="Edit" width="20px" height="20px" ng-click="editSaleChannelConfig(subSaleChannelData.idtableSalesChannelValueInfoId)" ng-init="imgsrc1='images/svg/edit.svg'" ng-mouseover="imgsrc1='images/svg/edit_hover.svg'" ng-mouseout="imgsrc1='images/svg/edit.svg'">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row padding-left-35">
+                    <div class="col-md-12">
+                        <div class="row warehouses-search">
+                            <img width="22px" height="22px" src="images/svg/blue_add.svg">
+                            <span class="add-new-sc-row" style="cursor: pointer" ng-click="openChannel()">&nbsp;&nbsp;Add New Sale Channel</span>
+                            <img width="22px" height="22px" ng-show="addNewSaleChannelClicked==false" class="pull-right" src="images/svg/expand_icon.svg" ng-click="toggleSaleChannelRow()">
+                            <img width="22px" height="22px" ng-show="addNewSaleChannelClicked==true" class="pull-right" src="images/svg/collaps_icon.svg" ng-click="toggleSaleChannelRow()">
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-show="addNewSaleChannelClicked==true">
+                    <div class="row padding-left-35 padding-top-25 padding-right-15 integration-row-heading">
+                        Configure {{channelName}}
+                        <hr />
+                    </div>
+
+                    <div class="row padding-left-35">
+                        <div class="col-md-3 font margin-top-5">Channel Name</div>
+                        <div class="col-md-4">
+                            <!-- input -->
+                            <input type="text" ng-class="{submitted: isChannelNameEntered}" ng-model="subChannelData.tableSalesChannelValueInfoName" placeholder="Type Here" class="form-control darkgrey-bottom-border input-less-padding" ng-change="channelNameEntered(subChannelData.tableSalesChannelValueInfoName)">
+                        </div>
+                    </div>
+                    <div class="row padding-left-35 padding-top-25" ng-repeat="key in metaChannelData track by $index">
+                        <div class="col-md-3 font margin-top-5">{{key.tableSalesChannelValueMetaValue}}</div>
+                        <div class="col-md-4">
+                            <input type="text" ng-class="{submitted: isKeyEntered[$index]}" ng-disabled="(key.tableSalesChannelValueMetaValue=='User Name' || key.tableSalesChannelValueMetaValue=='Password') && channelData.idtableSalesChannelMetaInfoId == 5 " ng-model="key.tableSalesChannelValueInfoValue"
+                                placeholder="Type Here" class="form-control darkgrey-bottom-border input-less-padding" ng-change="authTokenEntered($index)">
+                        </div>
+                        <div class="col-md-4" ng-show="channelData.tableSalesChannelType.idtableSalesChannelTypeId==1 && $index+1 == metaChannelData.length && showVerifyIntegration">
+                            <button type="button" class="btn small-actn-btn" ng-click="verifyIntegration(subChannelData,channelData,metaChannelData)">Verify Integration</button>
+                        </div>
+                        <div class="col-md-4" ng-show="channelData.tableSalesChannelType.idtableSalesChannelTypeId==1 && $index+1 == metaChannelData.length && integrationVerified">
+                            <div class="verify-integration">
+                                <md-icon md-svg-src="images/svg/status_confirm_icon.svg" style="width: 30px; height: 30px;"></md-icon>&nbsp;&nbsp;Verified Successfully
+                            </div>
+                        </div>
+                        <div class="col-md-4" ng-show="channelData.tableSalesChannelType.idtableSalesChannelTypeId==1 && $index+1 == metaChannelData.length && integrationNotVerified">
+                            <div class="no-verification-reqd">
+                                <md-icon md-svg-src="images/svg/status_alert_icon.svg" style="width: 25px; height: 25px;"></md-icon>&nbsp;&nbsp;Verification Failed
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row padding-left-35 padding-top-25">
+                        <div class="col-md-12" ng-show="channelData.idtableSalesChannelMetaInfoId!=2  && subSaleChannelData!=null">
+                            ** To authorize the Glaucus Integration with {{channelName}}<br> account please follow these <a style="cursor: pointer" ng-click="openHelpModal(channelData.idtableSalesChannelMetaInfoId)">steps</a>
+                        </div>
+                    </div>
+                    <div class="row padding-left-35">
+                        <hr>
+                    </div>
+
+                    <div class="row page-actions-row">
+                        <div class="col-md-6"></div>
+                        <div class="col-md-6">
+                            <button class="cancel-btn" style="margin-right: 0px !important; left: 30px;" ng-click="cancelData(channelData)">
+                                Cancel
+                            </button>
+                            <button ng-show="saleChannelMode=='add'" ng-click="saveSubChannel(subChannelData,channelData,metaChannelData)" class="action-btn pull-right" style="margin-right: 0px !important;">
+                                Done
+                            </button>
+                            <button ng-show="saleChannelMode=='edit'" ng-click="saveSubChannel(subChannelData,channelData,metaChannelData)" class="action-btn pull-right" style="margin-right: 0px !important;">
+                                Update
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8 text-center row-margin-top-larger font" ng-if="!channelName">Please select a Sale Channel</div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="helpMagentoModal" role="dialog" aria-labelledby="helpSaleChannelModal" aria-hidden="true">
+        <div class="modal-dialog" style="width: 1000px;">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                    <button type="button" class="close" ng-click="clearHelpDialog()">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <p class="dialog-heading-p" id="uploadAppDocLabel">Magento Integration</p>
+                </div>
+                <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+                    <div class="container-fluid">
+                        <div class="row rowSale-margin-top-large text-center" style="margin-left: 1%">
+                            <div class="magento-img"></div>
+                        </div>
+                        <div style="margin-left:5px;">To authorize Glaucus's integration with your Magento Community, Professional, or Enterprise web store, simply follow these steps:</div>
+                        <ol class="magento-instructions">
+                            <li>Log in your Magento Admin console, then select <b>'System'</b> ⇒ <b>'Web Services'</b> ⇒ <b>'SOAP/SML-RPC - Users'</b>.</li>
+                            <li>Click the <b>'Add New User'</b> button and create a new user for Skubana. Click the <b>'Save User'</b> button, then enter the User Name and API Key you created into the fields below.</li>
+                            <li>Assign an <u>all-access</u> <b>SOAP/SML-RPC</b> role to the Skubana user. If such a role doesn't already exist, create one by going to <b>'System'</b> ⇒ <b>'Web Services'</b> ⇒ <b>'SOAP/SML-RPC - Roles'</b></li>
+                            <li>Enter your Store URL domain (i.e. http[s]://www.&lt;your_store&gt;.com) then click 'Verify Integration'.</li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="modal-footer" style="background-color: #30373B; min-height: 60px;">
+                    <button type="button" class="cancel-btn" ng-click="clearHelpDialog()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="helpAmazonModal" role="dialog" aria-labelledby="helpSaleChannelModal" aria-hidden="true">
+        <div class="modal-dialog" style="width: 1000px;">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                    <button type="button" class="close" ng-click="clearHelpDialog()">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <p class="dialog-heading-p" id="uploadAppDocLabel">Amazon Integration</p>
+                </div>
+                <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+                    <div class="container-fluid">
+                        <div class="row rowSale-margin-top-large text-center" style="margin-left: 1%">
+                            <div class="amazon-img"></div>
+                        </div>
+                        <div style="margin-left:5px;">To authorize Glaucus's integration with your Amazon.in Seller Account, simply follow these steps:</div>
+
+                        <ol class="amazon-instructions">
+                            <li>Go to <a href="http://developer.amazonservices.in" target="_blank">http://developer.amazonservices.com</a>.</li>
+                            <li>Click the <b>Sign up for MWS</b> button.</li>
+                            <li>Log into your Amazon seller account.</li>
+                            <li>On the MWS registration page, click the button for <b>I want to use an application to access my Amazon seller account with MWS</b>.</li>
+                            <li>In the <b>Application Name</b> text box, enter: <span class="ui-state-highlight" id="skubanaName" style="border:none; padding-right:2px; padding-left:2px; border-radius:2px;"><strong>GlaucusEPS</strong></span></li>
+                            <li>In the <b>Application's Developer Account Number</b> text box, enter: <span class="ui-state-highlight" id="skubanaAmazonAccount" style="border:none; padding-right:2px; padding-left:2px; border-radius:2px;"><strong>7543-9230-6696</strong></span></li>
+                            <li>Click the <b>Next</b> button.</li>
+                            <li>Accept the Amazon MWS License Agreement and click <b>Next</b>.</li>
+                            <li>Enter your <label>MWS Auth Token</label> and <label>Seller ID</label> below, then click <label>'Verify Integration'</label>.</li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="modal-footer" style="background-color: #30373B; min-height: 60px;">
+                    <button type="button" class="cancel-btn" ng-click="clearHelpDialog()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="helpftpModal" role="dialog" aria-labelledby="helpSaleChannelModal" aria-hidden="true">
+        <div class="modal-dialog" style="width: 1000px;">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                    <button type="button" class="close" ng-click="clearHelpDialog()">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <p class="dialog-heading-p" id="uploadAppDocLabel">FTP Integration</p>
+                </div>
+                <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+                    <div class="container-fluid">
+                        <div class="row rowSale-margin-top-large text-center" style="margin-left: 1%">
+                            <div class="ftp-img"></div>
+                        </div>
+                        <div style="margin-left:5px;">To manage orders using glaucus ftp plateform, simply follow these steps:</div>
+
+                        <ol class="ftp-instructions">
+                            <li>For Creating Orders , upload new orders file at /{ftpName}/{ftpId}/received folder </li>
+                            <li>To Check Order list statuses uploaded by Glaucus Web Plateform, Go To /{ftpName}/{ftpId}/webreceived</li>
+                            <li>for cancelled orders, upload cancelled orders file at /{ftpName}/{ftpId}/cancelled</li>
+                            <li>To check cancelled orders, go to /{ftpName}/{ftpId}/omscancelled</li>
+                            <li>To check packed orders, go to /{ftpName}/{ftpId}/packed</li>
+                            <li>To check shipped orders, go to /{ftpName}/{ftpId}/shipped</li>
+                            <li>To check delivered orders, go to /{ftpName}/{ftpId}/delivered</li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="modal-footer" style="background-color: #30373B; min-height: 60px;">
+                    <button type="button" class="cancel-btn" ng-click="clearHelpDialog()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="helpFlipkartModal" role="dialog" aria-labelledby="helpSaleChannelModal" aria-hidden="true">
+        <div class="modal-dialog" style="width: 1000px;">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                    <button type="button" class="close" ng-click="clearHelpDialog()">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <p class="dialog-heading-p" id="uploadAppDocLabel">Flipkart Integration</p>
+                </div>
+                <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+                    <div class="container-fluid">
+                        <div class="row rowSale-margin-top-large text-center" style="margin-left: 1%">
+                            <div class="flipkart-img"></div>
+                        </div>
+                        <div style="margin-left:5px;">To authorize Glaucus's integration with your Flipkart Seller Account, simply follow these steps:</div>
+
+                        <ol class="flipkart-instructions">
+                            <li>Log into the https://api.flipkart.net/oauth-register/login using your seller username and password</li>
+                            <li>Click the <b>'Register New Application'</b> button and create a new application for glaucus. Enter Application name and application description as <b>'GlaucusEPS' </b> and <b>'Glaucus Application for Flipkart integration'</b>                                Respectively</li>
+                            <li>After filling details Click on <b> 'Register Application' </b> , Application Id and Application secret will be created</li>
+                            <li>Enter App Id and App Secret then click 'Verify Integration'.</li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="modal-footer" style="background-color: #30373B; min-height: 60px;">
+                    <button type="button" class="cancel-btn" ng-click="clearHelpDialog()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

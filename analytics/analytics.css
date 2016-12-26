@@ -1,0 +1,55 @@
+/* Analytics Main Page Style */
+
+.analytics-search {
+    background-color: #F2F7F8;
+    padding: 16px;
+}
+
+.analytics-listheading {
+    font-size: 18px;
+    padding: 30px 0px 20px 0px;
+    font-weight: 600;
+    color: #30373B;
+}
+
+.analytics-summary-heading {
+    font-size: 18px;
+    padding: 30px 0px 10px 0px;
+    font-weight: 600;
+    color: #30373B;
+}
+
+.analytics-addtnl-info {
+    font-size: 14px;
+    padding: 0px 0px 30px 0px;
+    color: #30373B;
+}
+
+.date-picker-area {
+    padding-top: 15px;
+    padding-bottom: 14px;
+}
+
+.chart-area {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+}
+
+.date-col {
+    margin-top: -9px;
+}
+
+.date-col md-datepicker {
+    background-color: inherit;
+    margin-left: -12px;
+}
+
+.date-col md-datepicker .md-datepicker-input-container {
+    padding-bottom: 0px !important;
+    border-bottom-width: 2px !important;
+    border-bottom-color: #D9DADB !important;
+}
+
+.nv-axislabel {
+    font-weight: 600 !important;
+}

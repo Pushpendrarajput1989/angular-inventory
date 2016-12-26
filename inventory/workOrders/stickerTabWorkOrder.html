@@ -1,0 +1,124 @@
+<md-content class="md-padding" style="padding: 0px;overflow: hidden;">
+    <div class="row search-row-heading">
+        <md-toolbar class="md-small search-row-toolbar search-row">
+            <div class="md-toolbar-tools">
+                <md-icon md-svg-icon="images/svg/header_search.svg"></md-icon>
+                <span class="font">&nbsp;&nbsp;Search Work Order</span>
+                <span flex=""></span>
+                <md-button class="md-icon-button" aria-label="Favorite" ng-click="toggleStickerSearchRow()">
+                    <md-icon ng-if="searchWorkOrderStickerClicked==false" md-svg-icon="images/svg/expand_icon.svg"></md-icon>
+                    <md-icon ng-if="searchWorkOrderStickerClicked==true" md-svg-icon="images/svg/collaps_icon.svg"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+    </div>
+    <div ng-show="searchWorkOrderStickerClicked==true" class="row search-row search-row-content search-row-top-border">
+        <div layout="row">
+            <div class="inv-search-margin">
+                <span class="font">Select Warehouse</span>
+                <select ng-model="warehouseid" class="inventoryscreen-dropdown font" ng-change="callDisabledSticker();">
+                    <option value="">
+                        Select
+                    </option>
+                    <option ng-repeat="option in wareHousesData"
+                        value="{{option.idtableWarehouseDetailsId}}">
+                        {{option.tableWarehouseDetailsShortname}}
+                    </option>
+                 </select>
+            </div>
+            <div>
+                <md-datepicker ng-model="start1Date" md-min-date="mainstartminDate" md-max-date="mainstartmaxDate" ng-change="mainsendStartDate(start1Date);callDisabledSticker();" md-placeholder="Start Date" style="background-color: inherit;margin-top:3px;"></md-datepicker>
+                <md-datepicker ng-model="end1Date" md-min-date="mainendminDate" md-max-date="mainendmaxDate" ng-change="mainsendEndDate(end1Date);callDisabledSticker();" md-placeholder="End Date" style="background-color: inherit;margin-top:3px;"></md-datepicker>
+                <button type="button" class="btn btn-default mybut" ng-disabled="isSubmitDisabledSticker" ng-click="submitWorkOrderStickerAction(warehouseid,start1Date,end1Date)">Submit</button>
+                <button title="Clear Applied Filters" ng-disabled="isResetDisabledSticker" class="btn clearFilter" ng-click="clearAction6();warehouseid=null;start1Date=null;end1Date=null">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <button type="button" class="btn add-button font pull-right btn-top-margin" ng-click="showAddStickerDialog($event)">Create New Sticker Tag</button>
+        </div>
+    </div>
+    <div class="row main-list">
+        <table class="table table-striped-custom table-condensed table-responsive table-hover">
+            <thead class="main-list-header-wo">
+                <!-- table header -->
+                <tr>
+                    <td>Work Order Id</td>
+                    <td>SKU Name</td>
+                    <td>SKU ID</td>
+                    <td>Warehouse</td>
+                    <td>Date</td>
+                    <td>Action</td>
+                </tr>
+            </thead>
+            <tbody ng-repeat="workOrderstickerData in workOrderstickerLists">
+                <tr class="clickable-row-wo">
+                    <td>{{workOrderstickerData.idtableWorkOrderId}}</td>
+                    <td>{{workOrderstickerData.tableWorkOrderSkus[0].tableSku.tableSkuName}}</td>
+                    <td>{{workOrderstickerData.tableWorkOrderSkus[0].tableSku.tableSkuClientSkuCode}}</td>
+                    <td>{{workOrderstickerData.tableWarehouseDetails.tableWarehouseDetailsShortname}}</td>
+                    <td>{{workOrderstickerData.tableWorkOrderDatetime[2]}}-{{workOrderstickerData.tableWorkOrderDatetime[1]}}-{{workOrderstickerData.tableWorkOrderDatetime[0]}}</td>
+                    <td>
+                        <img ng-src="{{imgsrc1}}" title="Edit" width="20px" height="20px" data-ng-click="editWorkOrders($event,workOrderstickerData.idtableWorkOrderId,workOrderstickerData.tableWorkOrderType.idtableWorkOrderTypeId)" ng-init="imgsrc1='images/svg/edit.svg'" ng-mouseover="imgsrc1='images/svg/edit_hover.svg'"
+                            ng-mouseout="imgsrc1='images/svg/edit.svg'" />&nbsp;|&nbsp;
+                        <img ng-if="workOrderstickerData.tableWorkOrderStatusType.idtableWorkOrderStatusTypeId!=5" ng-src="{{imgsrc2}}" title="Cancel" width="20px" height="20px" data-ng-click="cancelWorkOrder(workOrderstickerData.idtableWorkOrderId,workOrderstickerData,$event)" ng-init="imgsrc2='images/svg/deactivate.svg'" ng-mouseover="imgsrc2='images/svg/deactivate_hover.svg'"
+                            ng-mouseout="imgsrc2='images/svg/deactivate.svg'" />
+                        <img ng-src="{{imgsrc2}}" ng-if="workOrderstickerData.tableWorkOrderStatusType.idtableWorkOrderStatusTypeId==5" style="pointer-events: none;cursor: default;" title="Cancel" width="20px" height="20px" data-ng-click="cancelWorkOrder(workOrderstickerData.idtableWorkOrderId,workOrderstickerData,$event)" ng-init="imgsrc2='images/svg/deactivate.svg'" ng-mouseover="imgsrc2='images/svg/deactivate_hover.svg'"
+                            ng-mouseout="imgsrc2='images/svg/deactivate.svg'" />                            
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- END TABLE -->
+        <div class="row" style="margin-top: 0px;">
+            <div class="col-md-6">
+                <p class="showingOrderLabel" ng-show="allworkOrderStickerSize<workOrdStickerCount">Showing Stickers {{allworkOrderStickerStart + 1}} to {{allworkOrderStickerSize}} of {{workOrdStickerCount}}
+                </p>
+                <p class="showingOrderLabel" ng-show="allworkOrderStickerSize>=workOrdStickerCount && workOrdStickerCount!=0">Showing Stickers {{allworkOrderStickerStart + 1}} to {{workOrdStickerCount}} of {{workOrdStickerCount}}
+                </p>
+                <p class="showingOrderLabel" ng-show="workOrdStickerCount==0">No Stickers Available
+                </p>
+            </div>
+            <div class="col-md-6">
+                <span class="pull-right">
+                    <!-- pager -->
+                    <ul ng-if="vmPagerWoStickerStart.pages.length" class="pagination">
+                        <li ng-show="vmPagerWoStickerStart.currentPage == 1" ng-class="{disabled:vmPagerWoStickerStart.currentPage === 1}">
+                            <a>&lt;&lt; First</a>
+                        </li>
+                        <li ng-show="vmPagerWoStickerStart.currentPage > 1" ng-class="{disabled:vmPagerWoStickerStart.currentPage === 1}">
+                            <a ng-click="listOfWorkOrderStickerCount(1)">&lt;&lt; First</a>
+                        </li>
+                        <li ng-show="vmPagerWoStickerStart.currentPage == 1" ng-class="{disabled:vmPagerWoStickerStart.currentPage == 1}">
+                            <a>&lt; Previous</a>
+                        </li>
+                        <li ng-show="vmPagerWoStickerStart.currentPage > 1" ng-class="{enabled:vmPagerWoStickerStart.currentPage > 1}">
+                            <a ng-click="listOfWorkOrderStickerCount(vmPagerWoStickerStart.currentPage - 1)">&lt; Previous</a>
+                        </li>
+                        <li ng-repeat="page in vmPagerWoStickerStart.pages" ng-class="{active:vmPagerWoStickerStart.currentPage === page}">
+                            <a ng-click="listOfWorkOrderStickerCount(page)">{{page}}</a>
+                        </li>
+                        <li ng-show="vmPagerWoStickerStart.currentPage < vmPagerWoStickerStart.totalPages" ng-class="{enabled:vmPagerWoStickerStart.currentPage > vmPagerWoStickerStart.totalPages}">
+                            <a ng-click="listOfWorkOrderStickerCount(vmPagerWoStickerStart.currentPage + 1)">Next &gt;</a>
+                        </li>
+                        <li ng-show="vmPagerWoStickerStart.currentPage == vmPagerWoStickerStart.totalPages" ng-class="{disabled:vmPagerWoStickerStart.currentPage == vmPagerWoStickerStart.totalPages}">
+                            <a>Next &gt;</a>
+                        </li>
+                        <li ng-show="vmPagerWoStickerStart.currentPage < vmPagerWoStickerStart.totalPages" ng-class="{disabled:vmPagerWoStickerStart.currentPage === vmPagerWoStickerStart.totalPages}">
+                            <a ng-click="listOfWorkOrderStickerCount(vmPagerWoStickerStart.totalPages)">Last &gt;&gt;</a>
+                        </li>
+                        <li ng-show="vmPagerWoStickerStart.currentPage == vmPagerWoStickerStart.totalPages" ng-class="{disabled:vmPagerWoStickerStart.currentPage === vmPagerWoStickerStart.totalPages}">
+                            <a>Last &gt;&gt;</a>
+                        </li>
+                    </ul>
+                </span>
+            </div>
+        </div>
+    </div>
+</md-content>
+<!-- Add New Kit Dialog -->
+<div ng-include src="'inventory/workOrders/addNewStickerDialog.html'"></div>
+<div ng-include src="'inventory/workOrders/cancelWorkOrder.html'"></div>

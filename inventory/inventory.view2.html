@@ -1,0 +1,18 @@
+<link href="inventory/inventory.css" rel="stylesheet">
+
+<body ng-app="tableApp">
+    <div ng-include src="'menuBar/secureMenuBar.html'"></div>
+    <div class="container-fluid">
+        <div class="row row-margin-top-medium" style="margin-left: auto; margin-right: auto;">
+            <md-content>
+                <md-tabs md-selected="mdSelectedTab" md-no-ink-bar md-no-ink md-border-bottom md-dynamic-height="">
+                    <div ng-include src="'inventory/inventoryTabs2.html'"></div>
+                    <div ng-include src="'inventory/stockTransferTab.html'"></div>
+                </md-tabs>
+            </md-content>
+        </div>
+    </div>
+    <!-- Add New Inventory Dialog -->
+    <div ng-include src="'inventory/addNewInventoryDialog.html'"></div>
+    <div ng-include src="'inventory/addNewStockTransfer.html'"></div>
+</body>

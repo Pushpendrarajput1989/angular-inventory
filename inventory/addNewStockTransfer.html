@@ -1,0 +1,307 @@
+<script type="text/ng-template" id="addEditStockTransfer.tmpl.html" ng-controller="inventoryController">
+    <md-dialog aria-label="Add New Stock Transfer" style="width: 900px;position: relative;" ng-cloak>
+        <form>
+            <md-toolbar style="background-color: #F2F7F8;">
+                <div class="md-toolbar-tools">
+                    <p class="dialog-heading-p" ng-if="mode=='add'">Add New Stock Transfer</p>
+                    <p class="dialog-heading-p" ng-if="mode=='reorder'">Add New Stock Transfer</p>
+                    <p class="dialog-heading-p" ng-if="mode=='edit'">Update Stock Transfer</p>
+                    <span flex></span>
+                    <md-button class="md-icon-button" ng-click="closeStockTransfer()">
+                        <md-icon md-svg-src="images/svg/cancel.svg" aria-label="Close dialog"></md-icon>
+                    </md-button>
+                </div>
+            </md-toolbar>
+            <md-dialog-content>
+                <div class="md-dialog-content">
+
+                    <div class="row row-margin-top">
+                        <div class="col-md-3 margin-top-5">
+                            <span class="semi-bold-text">Transfer Order No.<span style="color:red">*</span></span>
+                        </div>
+                        <div class="col-md-8">
+                            <input ng-class="{submitted:transferOrderNumberEntered}" required type="text" class="form-control darkgrey-bottom-border" ng-model="transferOrderData.orderNo" ng-blur="checkTransferOrderNumber(transferOrderData.orderNo)" placeholder="Enter Transfer Order No.">
+                        </div>
+                    </div>
+
+                    <div class="row row-margin-top">
+                        <div class="col-md-3 margin-top-5">
+                            <span class="semi-bold-text">Type of Stock Transfer</span>
+                        </div>
+                        <div class="col-md-8">
+                            <select ng-change="stTypeSelected(this)" ng-model="stType" class="form-control">
+                              <option value="">Choose Type</option>
+                              <option value="in">Stock In</option>
+                              <option value="out">Stock Out</option>
+                              <option value="move">Stock Move</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div ng-show="stType == 'in'">
+                        <div class="row row-margin-top">
+                            <div class="col-md-3 margin-top-5">
+                                <span class="semi-bold-text">From</span>
+                            </div>
+                            <div class="col-md-8">
+                                <!-- Address List from Client API -->
+                                <select class="form-control">
+                                  <option value="">Select Address</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row row-margin-top">
+                            <div class="col-md-3 margin-top-5">
+                                <span class="semi-bold-text">To</span>
+                            </div>
+                            <div class="col-md-8">
+                                <!-- Warehouse List -->
+                                <select class="form-control">
+                                  <option value="">Select Address</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row row-margin-top">
+                            <div class="col-md-3 margin-top-5">
+                                <span class="semi-bold-text">Add Product</span>
+                            </div>
+                            <div class="col-md-4">
+                                <angucomplete-alt id="products" placeholder="Search product" pause="400" selected-object="productObject" remote-url="{{baseSkuUrl}}" title-field="tableSkuName" description-field="tableSkuDescription" image-field="/omsservices/webapi/skus/1/images/1" input-class="form-control darkgrey-bottom-border"
+                                    initial-value="skuSelected"></angucomplete-alt>
+                            </div>
+                            <div class="col-md-2">
+                                <input ng-keypress="Num1($event)" type="number" min="1" ng-model="transferOrderData.quantityNo" id="number1" placeholder="Quantity" class="form-control darkgrey-bottom-border" style="text-align: right;" />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn small-actn-btn" ng-click="addProduct(productObject,transferOrderData.quantityNo,id,transferOrderData.priceProd)">Add to List</button>
+                            </div>
+                        </div>
+
+                        <div class="row row-margin-top">
+                            <div class="col-md-9 col-md-offset-3">
+                                <span class="semi-bold-text">List of Selected Products</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-9 col-md-offset-3">
+                                <table id="productTable" class="table boldtable table-responsive table-bordered table-hover">
+                                    <thead class="data-grid-header">
+                                        <tr>
+                                            <th><span class="fa fa-calendar fa-lg"></span>&nbsp;&nbsp;Product Name</th>
+                                            <th style="text-align: right;"><span class="fa fa-calendar fa-lg"></span>&nbsp;&nbsp;Quantity</th>
+                                            <th style="text-align: center;"><span class="fa fa-calendar fa-lg"></span>&nbsp;&nbsp; Action
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="data-grid-data">
+                                        <tr ng-repeat="product in products">
+                                            <td>{{product.tableSku.tableSkuName}}</td>
+                                            <td style="text-align: right;">{{product.tableSaleOrderSkusSkuQuantity}}</td>
+                                            <td style="text-align: center;">
+                                                <a class="table-btn" ng-click="removeProduct($index)"><span class="fa fa-trash fa-lg" /></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div ng-show="stType == 'out'">
+                        <div class="row row-margin-top">
+                            <div class="col-md-3 margin-top-5">
+                                <span class="semi-bold-text">From</span>
+                            </div>
+                            <div class="col-md-8">
+                                <!-- Warehouse List -->
+                                <select class="form-control">
+                                  <option value="">Select Address</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row row-margin-top">
+                            <div class="col-md-3 margin-top-5">
+                                <span class="semi-bold-text">To</span>
+                            </div>
+                            <div class="col-md-8">
+                                <!-- Address List from Client API -->
+                                <select class="form-control">
+                                  <option value="">Select Address</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row row-margin-top">
+                            <div class="col-md-3 margin-top-5">
+                                <span class="semi-bold-text">Add Product</span>
+                            </div>
+                            <div class="col-md-3">
+                                <angucomplete-alt id="products" placeholder="Search product" pause="400" selected-object="productObject" remote-url="{{baseSkuUrl}}" title-field="tableSkuName" description-field="tableSkuDescription" image-field="/omsservices/webapi/skus/1/images/1" input-class="form-control darkgrey-bottom-border"
+                                    initial-value="skuSelected"></angucomplete-alt>
+                            </div>
+                            <div class="col-md-2">
+                                <input ng-keypress="Num1($event)" type="number" min="1" ng-model="transferOrderData.quantityNo" placeholder="Quantity" class="form-control darkgrey-bottom-border" style="text-align: right;" />
+                            </div>
+                            <!-- Show Available Quantity here -->
+                            <div class="col-md-2">
+                                <input ng-keypress="Num1($event)" disabled ng-model="transferOrderData.availableQuantity" placeholder="Available Quantity" class="form-control darkgrey-bottom-border" style="text-align: right;" />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn small-actn-btn" ng-click="addProduct(productObject,transferOrderData.quantityNo,id,transferOrderData.priceProd)">Add to List</button>
+                            </div>
+                        </div>
+
+                        <div class="row row-margin-top">
+                            <div class="col-md-9 col-md-offset-3">
+                                <span class="semi-bold-text">List of Selected Products</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-9 col-md-offset-3">
+                                <table id="productTable" class="table boldtable table-responsive table-bordered table-hover">
+                                    <thead class="data-grid-header">
+                                        <tr>
+                                            <th><span class="fa fa-calendar fa-lg"></span>&nbsp;&nbsp;Product Name</th>
+                                            <th style="text-align: right;"><span class="fa fa-calendar fa-lg"></span>&nbsp;&nbsp;Quantity</th>
+                                            <th style="text-align: center;"><span class="fa fa-calendar fa-lg"></span>&nbsp;&nbsp; Action
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="data-grid-data">
+                                        <tr ng-repeat="product in products">
+                                            <td>{{product.tableSku.tableSkuName}}</td>
+                                            <td style="text-align: right;">{{product.tableSaleOrderSkusSkuQuantity}}</td>
+                                            <td style="text-align: center;">
+                                                <a class="table-btn" ng-click="removeProduct($index)"><span class="fa fa-trash fa-lg" /></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div ng-show="stType == 'move'">
+                        <div class="row row-margin-top">
+                            <div class="col-md-3 margin-top-5">
+                                <span class="semi-bold-text">From</span>
+                            </div>
+                            <div class="col-md-8">
+                                <!-- Warehouse List -->
+                                <select class="form-control">
+                                  <option value="">Select Address</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row row-margin-top">
+                            <div class="col-md-3 margin-top-5">
+                                <span class="semi-bold-text">To</span>
+                            </div>
+                            <div class="col-md-8">
+                                <!-- Warehouse List -->
+                                <select class="form-control">
+                                  <option value="">Select Address</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row row-margin-top">
+                            <div class="col-md-3 margin-top-5">
+                                <span class="semi-bold-text">Add Product</span>
+                            </div>
+                            <div class="col-md-3">
+                                <angucomplete-alt id="products" placeholder="Search product" pause="400" selected-object="productObject" remote-url="{{baseSkuUrl}}" title-field="tableSkuName" description-field="tableSkuDescription" image-field="/omsservices/webapi/skus/1/images/1" input-class="form-control darkgrey-bottom-border"
+                                    initial-value="skuSelected"></angucomplete-alt>
+                            </div>
+                            <div class="col-md-2">
+                                <input ng-keypress="Num1($event)" type="number" min="1" ng-model="transferOrderData.quantityNo" id="number1" placeholder="Quantity" class="form-control darkgrey-bottom-border" style="text-align: right;" />
+                            </div>
+                            <!-- Show Available Quantity here -->
+                            <div class="col-md-2">
+                                <input ng-keypress="Num1($event)" disabled ng-model="transferOrderData.availableQuantity" placeholder="Available Quantity" class="form-control darkgrey-bottom-border" style="text-align: right;" />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn small-actn-btn" ng-click="addProduct(productObject,transferOrderData.quantityNo,id,transferOrderData.priceProd)">Add to List</button>
+                            </div>
+                        </div>
+
+                        <div class="row row-margin-top">
+                            <div class="col-md-9 col-md-offset-3">
+                                <span class="semi-bold-text">List of Selected Products</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-9 col-md-offset-3">
+                                <table id="productTable" class="table boldtable table-responsive table-bordered table-hover">
+                                    <thead class="data-grid-header">
+                                        <tr>
+                                            <th><span class="fa fa-calendar fa-lg"></span>&nbsp;&nbsp;Product Name</th>
+                                            <th style="text-align: right;"><span class="fa fa-calendar fa-lg"></span>&nbsp;&nbsp;Quantity</th>
+                                            <th style="text-align: center;"><span class="fa fa-calendar fa-lg"></span>&nbsp;&nbsp; Action
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="data-grid-data">
+                                        <tr ng-repeat="product in products">
+                                            <td>{{product.tableSku.tableSkuName}}</td>
+                                            <td style="text-align: right;">{{product.tableSaleOrderSkusSkuQuantity}}</td>
+                                            <td style="text-align: center;">
+                                                <a class="table-btn" ng-click="removeProduct($index)"><span class="fa fa-trash fa-lg" /></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row row-margin-top">
+                        <div class="col-md-3 margin-top-5">
+                            <span class="font">Remarks</span>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control darkgrey-bottom-border" ng-model="transferOrderData.remarks" placeholder="Enter Remarks">
+                        </div>
+                    </div>
+
+
+                </div>
+            </md-dialog-content>
+            <md-dialog-actions style="background-color: #30373B; min-height: 60px;" layout="row">
+                <span flex></span>
+                <md-button class="cancel-btn" ng-click="closeStockTransfer()">
+                    Cancel
+                </md-button>
+                <md-button ng-if="mode=='add' || mode=='reorder'" class="action-btn" ng-click="addStockTransfer(stockTransferData)">
+                    Add
+                </md-button>
+                <md-button ng-if="mode=='edit'" class="action-btn" ng-click="updateStockTransfer(stockTransferData)">
+                    Update
+                </md-button>
+            </md-dialog-actions>
+        </form>
+    </md-dialog>
+</script>
+<script type="text/javascript">
+    function isNumberKey(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && !(charCode == 46 || charcode == 8))
+            return false;
+        else {
+            var len = $(element).val().length;
+            var index = $(element).val().indexOf('.');
+            if (index > 0 && charCode == 46) {
+                return false;
+            }
+            if (index > 0) {
+                var CharAfterdot = (len + 1) - index;
+                if (CharAfterdot > 3) {
+                    return false;
+                }
+            }
+
+        }
+        return true;
+    }
+</script>

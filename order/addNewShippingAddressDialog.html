@@ -1,0 +1,121 @@
+<div class="modal fade" id="orderShippingAddressModal" role="dialog" aria-labelledby="shippingAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 800px;">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                <button type="button" class="close" ng-click="cancelShippingAddress()">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <p class="dialog-heading-p" id="shippingAddressModalLabel">Add New Shipping Address</p>
+            </div>
+            <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Information Area -->
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">Contact Person Name</div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="First Name" ng-model="contactPersonName">
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">Email Id</div>
+                                <div class="col-md-6">
+                                    <input type="email" name="custEmail" id="custEmail" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="contactEmail" ng-blur="validateEmail(myForm.custEmail.$valid);">
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">Phone Number</div>
+                                <div class="col-md-6">
+                                    <input type="text" ng-keypress="Num($event)" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="contactPhone">
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">Address Line 1</div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="adLine1">
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">Address Line 2</div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="adLine2" ng-blur="getLatitudeLongitude(showResult,address)">
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">Address Line 3</div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="adLine3" ng-blur="getLatitudeLongitude(showResult,address)">
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">State</div>
+                                <div class="col-md-6">
+                                    <select ng-model="stateData" class="form-control" ng-options="option as option.tableStateLongName for option in regionsStatesArray" ng-change="regionsStatesDistrictData(stateData);getLatitudeLongitude(showResult,address);getTinNo(customerId,stateData)">
+                                    <option value=""></option>
+                                  </select>
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">District</div>
+                                <div class="col-md-6">
+                                    <select ng-model="districtData" class="form-control" ng-options="option as option.tableDistrictLongName for option in regionsStatesDistrictArray" ng-change="regionsStatesDistrictsCityData(stateData,districtData);getLatitudeLongitude(showResult,address)">
+                                    <option value=""></option>
+                                  </select>
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">City</div>
+                                <div class="col-md-6">
+                                    <select ng-model="city" class="form-control" ng-options="option as option.tableCityLongName for option in regionsStatesDistrictsCityArray" ng-change="changeCity(city);getLatitudeLongitude(showResult,address)">
+                                    <option value=""></option>
+                                  </select>
+                                </div>
+                            </div>
+
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">PIN Code</div>
+                                <div class="col-md-6">
+                                    <input type="number" min="0" class="form-control darkgrey-bottom-border font input-less-padding" ng-blur="getLatitudeLongitude(showResult,address)" placeholder="Type Here" ng-model="pincode">
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15" ng-show="customerTypeId==2">
+                                <div class="col-md-6 font">TIN No</div>
+                                <div class="col-md-6">
+                                    <input type="number" min="0" ng-show="customerTypeId==2" name="tin" id="tinArray" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="tinArray.tableCustomerStateWiseVatNo">
+                                </div>
+                            </div>
+
+                            {{address=adLine1 + "," + adLine2 + "," + adLine3 + "," + district + "," + cityVal + "," + state + "," + pincode;""}}
+                        </div>
+                        <div class="col-md-6 padding-top-15">
+                            <!-- Map Area -->
+                            <demo-map ng-if="searchLocation!=null" ng-model="searchLocation" class="demo-map">
+                            </demo-map>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer modal-dialog-footer">
+                <button type="button" class="cancel-btn" ng-click="cancelShippingAddress()">Cancel</button>
+                <button type="button" class="action-btn" ng-click="saveShippingAddressData(customerId,adLine1,adLine2,adLine3,city,pincode,contactPersonName,
+                      contactEmail,contactPhone,tinMode,tinArray.tableCustomerStateWiseVatNo,stateData,tinVatId,customerTypeId);">
+                    Add
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Glaucus UI</title>
+    <link href="analytics/analytics.css" rel="stylesheet">
+    <link rel="stylesheet" href="libs/nvd3/build/nv.d3.css">
+
+</head>
+
+<body ng-app="tableApp">
+    <div ng-include src="'menuBar/secureMenuBar.html'"></div>
+    <div class="container-fluid">
+        <div class="row analytics-search row-margin-top-small" style="margin-left: auto; margin-right: auto;">
+            <div class="col-md-2 select-style">
+                <select ng-model="chartValueType">
+                  <option value="value">Total Sales Value</option>
+                  <option value="qty">Total Sales Quantity</option>
+                </select>
+            </div>
+            <div class="col-md-2 select-style margin-left-70">
+                <select ng-model="dateRange" ng-change="getDateRange();">
+                  <option value="3m">Time (3 months)</option>
+                  <option value="6m">Time (6 months)</option>
+                  <option value="9m">Time (9 months)</option>
+                  <option value="12m">Time (12 months)</option>
+                </select>
+            </div>
+            <div class="col-md-1 font margin-left-30 text-center">Or</div>
+            <div class="col-md-2 date-col margin-left-30">
+                <md-datepicker ng-model="start1Date" ng-change="sendStartDate(start1Date);" md-min-date="startminDate" md-max-date="startmaxDate" onkeydown="return false" md-placeholder="Start Date"></md-datepicker>
+            </div>
+            <div class="col-md-2 date-col margin-left-30">
+                <md-datepicker ng-model="end1Date" ng-change="sendEndDate(end1Date);" md-min-date="endminDate" md-max-date="endmaxDate" onkeydown="return false" md-placeholder="End Date"></md-datepicker>
+            </div>
+
+        </div>
+
+        <div class="row analytics-search" style="margin-left: auto; margin-right: auto;">
+            <div class="col-md-2 font">Select the Sale Channel</div>
+            <!-- Sale Channel Dropdown -->
+            <div class="col-md-2 select-style">
+                <select ng-model="saleChannelId">
+                  <option value="">
+                    All
+                  </option>
+                  <option ng-repeat="option in channelNamesData"
+                     value="{{option.idtableSalesChannelValueInfoId}}">
+                     {{option.tableSalesChannelValueInfoName}}
+                  </option>
+                </select>
+            </div>
+            <div class="col-md-2 font padding-left-60">Select the SKU</div>
+            <div class="col-md-2 no-left-right-padding">
+                <!-- SKU Search -->
+                {{skuId=searchedProduct.originalObject.idtableSkuId;""}}
+                <angucomplete id="products" placeholder="Search product" pause="400" selectedobject="searchedProduct" url="{{baseSkuUrl}}" titlefield="tableSkuName" imagefield="/omsservices/webapi/skus/1/images/1" descriptionfield="tableSkuDescription" inputclass="form-control main-bottom-border padding-top-3"></angucomplete>
+            </div>
+            <div class="col-md-2 margin-top-neg-10">
+                <!-- Submit Button -->
+                <button type="button" class="btn btn-default mybut" ng-click="getChart();">Submit</button>
+            </div>
+            <div class="col-md-1 margin-top-neg-5 margin-left-neg-40">
+                <a title="Clear Applied Filters" class="btn clearFilter" ng-click="clearAction()"></a>
+            </div>
+        </div>
+
+        <div class="row margin-top-10" style="margin-left: auto; margin-right: auto;">
+            <div class="col-md-12 chart-area light-border">
+                <div ng-if="dataPresent" class="pull-right" style="font: normal 12px Arial; font-weight: 600; padding-right: 44px; padding-top: 10px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">The numbers indicate the number of sale orders. Click on the state to toggle the state wise inclusion.</div>
+                <nvd3 options="options" data="data"></nvd3>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

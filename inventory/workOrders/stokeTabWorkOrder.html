@@ -1,0 +1,124 @@
+<md-content class="md-padding" style="padding: 0px;overflow: hidden;">
+    <div class="row search-row-heading">
+        <md-toolbar class="md-small search-row-toolbar search-row">
+            <div class="md-toolbar-tools">
+                <md-icon md-svg-icon="images/svg/header_search.svg"></md-icon>
+                <span class="font">&nbsp;&nbsp;Search Work Order</span>
+                <span flex=""></span>
+                <md-button class="md-icon-button" aria-label="Favorite" ng-click="toggleStockSearchRow()">
+                    <md-icon ng-if="searchWorkOrderStockClicked==false" md-svg-icon="images/svg/expand_icon.svg"></md-icon>
+                    <md-icon ng-if="searchWorkOrderStockClicked==true" md-svg-icon="images/svg/collaps_icon.svg"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+    </div>
+    <div ng-show="searchWorkOrderStockClicked==true" class="row search-row search-row-content search-row-top-border">
+        <div layout="row">
+            <div class="inv-search-margin">
+                <span class="font">Select Warehouse</span>
+                <select ng-model="warehouseid" class="inventoryscreen-dropdown font" ng-change="callDisabledStock();">
+                    <option value="">
+                        Select
+                    </option>
+                    <option ng-repeat="option in wareHousesData"
+                        value="{{option.idtableWarehouseDetailsId}}">
+                        {{option.tableWarehouseDetailsShortname}}
+                    </option>
+                 </select>
+            </div>
+            <div>
+                <md-datepicker ng-model="start1Date" md-min-date="mainstartminDate" md-max-date="mainstartmaxDate" ng-change="mainsendStartDate(start1Date);callDisabledStock();" md-placeholder="Start Date" style="background-color: inherit;margin-top:3px;"></md-datepicker>
+                <md-datepicker ng-model="end1Date" md-min-date="mainendminDate" md-max-date="mainendmaxDate" ng-change="mainsendEndDate(end1Date);callDisabledStock();" md-placeholder="End Date" style="background-color: inherit;margin-top:3px;"></md-datepicker>
+                <button type="button" class="btn btn-default mybut" ng-disabled="isSubmitDisabledStock" ng-click="submitWorkOrderStockAction(warehouseid,start1Date,end1Date)">Submit</button>
+                <button title="Clear Applied Filters" ng-disabled="isResetDisabledStock" class="btn clearFilter" ng-click="clearAction5();warehouseid=null;start1Date=null;end1Date=null">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <button type="button" class="btn add-button font pull-right btn-top-margin" ng-click="showAddStockDialog($event)">Create New Stock Audit</button>
+        </div>
+    </div>
+    <div class="row main-list">
+        <table class="table table-striped-custom table-condensed table-responsive table-hover">
+            <thead class="main-list-header-wo">
+                <!-- table header -->
+                <tr>
+                    <td>Work Order Id</td>
+                    <td>SKU Name</td>
+                    <td>SKU ID</td>
+                    <td>Warehouse</td>
+                    <td>Date</td>
+                    <td>Action</td>
+                </tr>
+            </thead>
+            <tbody ng-repeat="workOrderstockData in workOrderstockLists">
+                <tr class="clickable-row-wo">
+                    <td>{{workOrderstockData.idtableWorkOrderId}}</td>
+                    <td>{{workOrderstockData.tableWorkOrderSkus[0].tableSku.tableSkuName}}</td>
+                    <td>{{workOrderstockData.tableWorkOrderSkus[0].tableSku.tableSkuClientSkuCode}}</td>
+                    <td>{{workOrderstockData.tableWarehouseDetails.tableWarehouseDetailsShortname}}</td>
+                    <td>{{workOrderstockData.tableWorkOrderDatetime[2]}}-{{workOrderstockData.tableWorkOrderDatetime[1]}}-{{workOrderstockData.tableWorkOrderDatetime[0]}}</td>
+                    <td>
+                        <img ng-src="{{imgsrc1}}" title="Edit" width="20px" height="20px" data-ng-click="editWorkOrders($event,workOrderstockData.idtableWorkOrderId,workOrderstockData.tableWorkOrderType.idtableWorkOrderTypeId)" ng-init="imgsrc1='images/svg/edit.svg'" ng-mouseover="imgsrc1='images/svg/edit_hover.svg'"
+                            ng-mouseout="imgsrc1='images/svg/edit.svg'" />&nbsp;|&nbsp;
+                        <img ng-if="workOrderstockData.tableWorkOrderStatusType.idtableWorkOrderStatusTypeId!=5" ng-src="{{imgsrc2}}" title="Cancel" width="20px" height="20px" data-ng-click="cancelWorkOrder(workOrderstockData.idtableWorkOrderId,workOrderstockData,$event)" ng-init="imgsrc2='images/svg/deactivate.svg'" ng-mouseover="imgsrc2='images/svg/deactivate_hover.svg'"
+                            ng-mouseout="imgsrc2='images/svg/deactivate.svg'" />
+                        <img ng-src="{{imgsrc2}}" ng-if="workOrderstockData.tableWorkOrderStatusType.idtableWorkOrderStatusTypeId==5" style="pointer-events: none;cursor: default;" title="Cancel" width="20px" height="20px" data-ng-click="cancelWorkOrder(workOrderstockData.idtableWorkOrderId,workOrderstockData,$event)" ng-init="imgsrc2='images/svg/deactivate.svg'" ng-mouseover="imgsrc2='images/svg/deactivate_hover.svg'"
+                            ng-mouseout="imgsrc2='images/svg/deactivate.svg'" />                            
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- END TABLE -->
+        <div class="row" style="margin-top: 0px;">
+            <div class="col-md-6">
+                <p class="showingOrderLabel" ng-show="allworkOrderStockSize<workOrdStockCount">Showing Stocks {{allworkOrderStockStart + 1}} to {{allworkOrderStockSize}} of {{workOrdStockCount}}
+                </p>
+                <p class="showingOrderLabel" ng-show="allworkOrderStockSize>=workOrdStockCount && workOrdStockCount!=0">Showing Stocks {{allworkOrderStockStart + 1}} to {{workOrdStockCount}} of {{workOrdStockCount}}
+                </p>
+                <p class="showingOrderLabel" ng-show="workOrdStockCount==0">No Stocks Available
+                </p>
+            </div>
+            <div class="col-md-6">
+                <span class="pull-right">
+                    <!-- pager -->
+                    <ul ng-if="vmPagerWoStockStart.pages.length" class="pagination">
+                        <li ng-show="vmPagerWoStockStart.currentPage == 1" ng-class="{disabled:vmPagerWoStockStart.currentPage === 1}">
+                            <a>&lt;&lt; First</a>
+                        </li>
+                        <li ng-show="vmPagerWoStockStart.currentPage > 1" ng-class="{disabled:vmPagerWoStockStart.currentPage === 1}">
+                            <a ng-click="listOfWorkOrderStockCount(1)">&lt;&lt; First</a>
+                        </li>
+                        <li ng-show="vmPagerWoStockStart.currentPage == 1" ng-class="{disabled:vmPagerWoStockStart.currentPage == 1}">
+                            <a>&lt; Previous</a>
+                        </li>
+                        <li ng-show="vmPagerWoStockStart.currentPage > 1" ng-class="{enabled:vmPagerWoStockStart.currentPage > 1}">
+                            <a ng-click="listOfWorkOrderStockCount(vmPagerWoStockStart.currentPage - 1)">&lt; Previous</a>
+                        </li>
+                        <li ng-repeat="page in vmPagerWoStockStart.pages" ng-class="{active:vmPagerWoStockStart.currentPage === page}">
+                            <a ng-click="listOfWorkOrderStockCount(page)">{{page}}</a>
+                        </li>
+                        <li ng-show="vmPagerWoStockStart.currentPage < vmPagerWoStockStart.totalPages" ng-class="{enabled:vmPagerWoStockStart.currentPage > vmPagerWoStockStart.totalPages}">
+                            <a ng-click="listOfWorkOrderStockCount(vmPagerWoStockStart.currentPage + 1)">Next &gt;</a>
+                        </li>
+                        <li ng-show="vmPagerWoStockStart.currentPage == vmPagerWoStockStart.totalPages" ng-class="{disabled:vmPagerWoStockStart.currentPage == vmPagerWoStockStart.totalPages}">
+                            <a>Next &gt;</a>
+                        </li>
+                        <li ng-show="vmPagerWoStockStart.currentPage < vmPagerWoStockStart.totalPages" ng-class="{disabled:vmPagerWoStockStart.currentPage === vmPagerWoStockStart.totalPages}">
+                            <a ng-click="listOfWorkOrderStockCount(vmPagerWoStockStart.totalPages)">Last &gt;&gt;</a>
+                        </li>
+                        <li ng-show="vmPagerWoStockStart.currentPage == vmPagerWoStockStart.totalPages" ng-class="{disabled:vmPagerWoStockStart.currentPage === vmPagerWoStockStart.totalPages}">
+                            <a>Last &gt;&gt;</a>
+                        </li>
+                    </ul>
+                </span>
+            </div>
+        </div>
+    </div>
+</md-content>
+<!-- Add New Kit Dialog -->
+<div ng-include src="'inventory/workOrders/addNewStockDialog.html'"></div>
+<div ng-include src="'inventory/workOrders/cancelWorkOrder.html'"></div>

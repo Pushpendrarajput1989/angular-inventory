@@ -1,0 +1,138 @@
+<md-tab label="ST" md-active="selectedTab==='ST'">
+    <md-content class="md-padding" style="padding: 0px;overflow: hidden;">
+        
+       <div class="row orderscreen-channel row-margin-top-x-medium" style="padding-top: 20px !important;">
+            <div class="col-md-2">
+                <span class="font">Choose Channel</span>
+            </div>
+            <div class="col-md-2 select-style-small" style="margin-left: -30px;">
+                <select ng-model="saleChannelId" ng-change="callDisabled()">
+                    <option value="">
+                        All
+                    </option>
+                    <option ng-repeat="option in channelLists"
+                            value="{{option.idtableSalesChannelValueInfoId}}">
+                        {{option.tableSalesChannelValueInfoName}}
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-2" style="margin-left: 48px;">
+                <span class="font">Search SKU</span>
+            </div>
+            <div class="col-md-2" style="padding-left:0px; margin-left: -60px;">
+                <angucomplete-alt id="products" placeholder="Search product" pause="400" selected-object="searchedProduct"
+                                  remote-url="{{baseSkuUrl}}" title-field="tableSkuName"
+                                  description-field="tableSkuDescription" image-field="tableSkuImageUrl"
+                                  code-field="tableSkuClientSkuCode"
+                                  input-class="main-bottom-border font input-less-padding"></angucomplete-alt>
+            </div>
+            <div class="col-md-2" style="margin-left: 41px;">
+                <span class="font">Search Customers</span>
+            </div>
+            <div class="col-md-2" style="padding-left: 0px; margin-left: -20px;">
+                <angucomplete-alt id="customersMain" placeholder="Search customer" pause="400"
+                                  selected-object="searchedCustomer" remote-url="{{baseCustomerUrl}}"
+                                  title-field="tableCustomerFirstName"
+                                  description-field="tableCustomerEmail,tableCustomerPhone"
+                                  input-class="main-bottom-border font input-less-padding"
+                                  initial-value="customerString"></angucomplete-alt>
+            </div>
+        </div>
+
+        <div class="row orderscreen-channel">
+            <div class="col-md-2 margin-top-7">
+                <span class="font">Choose Date</span>
+            </div>
+            <div class="col-md-3" style="margin-left: -63px;">
+                <md-datepicker ng-model="start1Date" md-min-date="startminDate" md-max-date="startmaxDate"
+                               onkeydown="return false" ng-change="sendStartDate(start1Date)" md-placeholder="Start Date"
+                               style="background-color: inherit;margin-top:3px;"></md-datepicker>
+                <button ng-if="start1Date" title="Deselect Start Date" class="btn dateClear" ng-click="clearStartDate();">
+                </button>
+            </div>
+            <div class="col-md-3">
+                <md-datepicker ng-model="end1Date" md-min-date="endminDate" md-max-date="endmaxDate"
+                               onkeydown="return false" ng-change="sendEndDate(end1Date)" md-placeholder="End Date"
+                               style="background-color: inherit;margin-top:3px; margin-left: -9px;"></md-datepicker>
+                <button ng-if="end1Date" title="Deselect End Date" class="btn dateClear" ng-click="clearEndDate()">
+                </button>
+            </div>
+            <div class="col-md-1" style="margin-left: 20px;">
+                <button ng-disabled="isSubmitDisabled" type="button" class="btn btn-default mybut"
+                        ng-click="submitAction(saleChannelId,skuId,start1Date,end1Date,customerid)"
+                        style="margin-left: 0px !important;">Submit
+                </button>
+            </div>
+            <div class="col-md-1" style="margin-top: 4px; margin-left: 16px;">
+                <button ng-disabled="isResetDisabled" title="Clear Applied Filters" class="btn clearFilter"
+                        ng-click="clearAction(saleChannelId,skuId,start1Date,end1Date,customerid);skuId=null;customerid=null;">
+                </button>
+            </div>
+        </div>
+        <div class="row row-margin-top-small">
+            <div class="col-md-12">
+                <ul class="nav navbar-nav screen-tabs">
+                    <li>
+                        <button type="button" class="btn sharp font" ng-style="tabsColor"
+                                ng-click="listOfStatesCount('all',1)"><span>New</span><span
+                                style="color: #737373 !important; font-weight: 400 !important;">&nbsp;(11)</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="btn sharp font" ng-style="tabsColor1"
+                                ng-click="listOfStatesCount('new',1)"><span>In Process</span><span
+                                style="color: #737373 !important; font-weight: 400 !important;">&nbsp;(11)</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="btn sharp font" ng-style="tabsColor2"
+                                ng-click="listOfStatesCount('process',1)"><span>Complete</span><span
+                                style="color: #737373 !important; font-weight: 400 !important;">&nbsp;(11)</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row main-list">
+            <table class="table table-striped-custom table-condensed table-responsive table-hover">
+                <thead class="main-list-header-sku">
+                    <!-- table header -->
+                    <tr>
+                        <td>SKU ID</td>
+                        <td>SKU Name</td>
+                        <td>ISBN/UPC/EAN</td>
+                        <td>Category</td>
+                        <td>Brand</td>
+                        <td>Type</td>
+                        <td>Dimensions (LxBxH/W)</td>
+                        <td>Status</td>
+                        <td>Action</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="clickable-row-sku">
+                        <td>Test</td>
+                        <td>Test</td>
+                        <td>ISBN</td>
+                        <td>Test</td>
+                        <td>Test</td>
+                        <td>Test</td>
+                        <td>Test<strong>x</strong>&nbsp;Test&nbsp;<strong>x</strong>&nbsp;Test&nbsp;Test&nbsp;<strong>/</strong>&nbsp;Test&nbsp;Test</td>
+                        <td>
+                            <a class="active-status" ng-if="normalskuData.tableSkuStatusType.idtableSkuStatusTypeId == 1" href="" data-ng-click="deactivateSku(normalskuData.idtableSkuId, normalskuData,normalskuData.tableSkuType.tableSkuTypeString,$event)">Test&nbsp;<img src="images/svg/SKU_Deactivate-70.svg" title="Click to deactivate SKU" class="status-img" alt=""></a>
+                            <a class="deactive-status" ng-if="normalskuData.tableSkuStatusType.idtableSkuStatusTypeId == 2" href="" data-ng-click="activateSku(normalskuData.idtableSkuId, normalskuData,normalskuData.tableSkuType.tableSkuTypeString,$event)">Test&nbsp;<img src="images/svg/SKU_Activate.svg" title="Click to activate SKU" class="status-img" alt=""></a>
+                        </td>
+                        <td>
+                            <img ng-src="Test" title="Edit" width="20px" height="20px" data-ng-click="editSku($index, normalskuData.idtableSkuId,normalskuData.tableSkuType.tableSkuTypeString)" ng-init="imgsrc1='images/svg/edit.svg'" ng-mouseover="imgsrc1='images/svg/edit_hover.svg'"
+                                ng-mouseout="imgsrc1='images/svg/edit.svg'">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- END TABLE -->
+            
+        </div>
+    </md-content>
+</md-tab>
+<div ng-include src="'sku/deactivateSku.html'"></div>
+<div ng-include src="'sku/activateSku.html'"></div>

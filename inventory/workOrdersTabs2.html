@@ -1,0 +1,55 @@
+<md-tab label="Work Order">
+    <md-content class="md-padding" style="padding: 0px; margin-top: 10px;">
+    <label ng-if="selectedTab1==0" ng-init="callMainMinStartMaxStart();">
+        {{mainstartminDate="";""}}
+        {{mainendminDate="";""}}
+    </label>
+        <label ng-if="selectedTab1==1" ng-init="callMainMinStartMaxStart();">
+        {{mainstartminDate="";""}}
+        {{mainendminDate="";""}}
+    </label>
+        <label ng-if="selectedTab1==2" ng-init="callMainMinStartMaxStart();">
+        {{mainstartminDate="";""}}
+        {{mainendminDate="";""}}
+    </label>
+        <label ng-if="selectedTab1==3" ng-init="callMainMinStartMaxStart();">
+        {{mainstartminDate="";""}}
+        {{mainendminDate="";""}}
+    </label>
+        <label ng-if="selectedTab1==4" ng-init="callMainMinStartMaxStart();">
+        {{mainstartminDate="";""}}
+        {{mainendminDate="";""}}
+    </label>
+        <label ng-if="selectedTab1==5" ng-init="callMainMinStartMaxStart();">
+        {{mainstartminDate="";""}}
+        {{mainendminDate="";""}}
+    </label>
+        <label ng-if="selectedTab1==6" ng-init="callMainMinStartMaxStart();">
+        {{mainstartminDate="";""}}
+        {{mainendminDate="";""}}
+    </label>
+        <md-tabs md-selected="selectedTab1" md-no-ink-bar md-no-ink md-border-bottom md-dynamic-height="">
+            <md-tab label="List Of Work Order">
+                <div ng-include src="'inventory/workOrders/listwrkOrders2.html'"></div>
+            </md-tab>
+            <md-tab label="Kit">
+                <div ng-include src="'inventory/workOrders/kitTabWorkOrder.html'"></div>
+            </md-tab>
+            <md-tab label="Split">
+                <div ng-include src="'inventory/workOrders/spliteTabWorkOrder.html'"></div>
+            </md-tab>
+            <md-tab label="Free Mailer Sample">
+                <div ng-include src="'inventory/workOrders/mailerTabWorkOrder.html'"></div>
+            </md-tab>
+            <md-tab label="QC">
+                <div ng-include src="'inventory/workOrders/qcTabWorkOrder.html'"></div>
+            </md-tab>
+            <md-tab label="Stock Audit">
+                <div ng-include src="'inventory/workOrders/stokeTabWorkOrder.html'"></div>
+            </md-tab>
+            <md-tab label="Sticker Tag">
+                <div ng-include src="'inventory/workOrders/stickerTabWorkOrder.html'"></div>
+            </md-tab>
+        </md-tabs>
+    </md-content>
+</md-tab>

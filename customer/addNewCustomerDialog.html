@@ -1,0 +1,86 @@
+<script type="text/ng-template" id="dialog2.tmpl.html" ng-controller="customerController">
+    <md-dialog aria-label="Add New Customer" style="width: 800px;" ng-cloak>
+        <form name="myForm">
+            <md-toolbar style="background-color: #F2F7F8;">
+                <div class="md-toolbar-tools">
+                    <p class="dialog-heading-p" ng-if="customerMode == 'add'">Add New Customer</p>
+                    <p class="dialog-heading-p" ng-if="customerMode == 'edit'">Edit Customer</p>
+                    <span flex></span>
+                    <md-button class="md-icon-button" ng-click="cancelCustomerData()">
+                        <md-icon md-svg-src="images/svg/cancel.svg" aria-label="Close dialog"></md-icon>
+                    </md-button>
+                </div>
+            </md-toolbar>
+
+            <md-dialog-content>
+                <div class="md-dialog-content">
+                    <div layout="row" ng-show="customerMode == 'add'">
+                        <b class="customerfieldskey">Customer Code</b>
+                        <input id="custCodeAddMode" ng-model="customersData.tableCustomerClientCustomerCode" ng-class="{submitted: isCustomerCodeValid}" ng-change="custCodeChanged(customersData.tableCustomerClientCustomerCode)" type="text" class="customerfieldsvalue" placeholder="Type Here"
+                            style="color: #F0592B;font-weight: bolder;">
+                    </div>
+                    <div layout="row" ng-show="customerMode == 'edit'">
+                        <b class="customerfieldskey">Customer Code</b>
+                        <input id="custCodeEditMode" ng-readonly="true" type="text" class="customer-code-edit-mode" ng-model="customersData.tableCustomerClientCustomerCode">
+                    </div>
+                    <br>
+                    <div layout="row" style="padding-bottom: 10px">
+                        <b class="customerfieldskey">Type Of Customer</b>
+                        <md-radio-group ng-class="{submitted: isCustomerTypeValid}" ng-model="customersData.tableCustomerTypeString" ng-change="custTypeChanged(customersData.tableCustomerTypeString)">
+                            <md-radio-button value="B2B" class="md-primary" ng-style="{'display':'inline'}"> B2B&nbsp;&nbsp;&nbsp;</md-radio-button>
+                            <md-radio-button value="B2C" class="md-primary" ng-style="{'display':'inline'}"> B2C </md-radio-button>
+                        </md-radio-group>
+                    </div>
+                    <br>
+                    <div layout="row" style="padding-bottom: 10px">
+                        <b class="customerfieldskey">Creation Source</b> {{customersData.tableSalesChannelValueInfo=tableSalesChannelValueInfo;""}}
+                        <select ng-class="{submitted: isCustomerCrSrcValid}" ng-change="custCrSrcChanged(tableSalesChannelValueInfo)" ng-model="tableSalesChannelValueInfo" class="form-control selectClass" ng-options="option as option.tableSalesChannelValueInfoName for option in creationSourceArray">
+                        <option value="">Select Creation Source</option>
+                      </select>
+                    </div>
+                    <div ng-if="customersData.tableCustomerTypeString == 'B2C'">
+                        {{customersData.tableCustomerCompany=null;""}} {{customersData.tableCustomerTinNo=null;""}}
+                    </div>
+                    <div ng-if="customersData.tableCustomerTypeString == 'B2B'">
+                        <br>
+                        <div layout="row">
+                            <b class="customerfieldskey">Company Name</b>
+                            <input type="text" ng-class="{submitted: isCustomerCompNameValid}" ng-change="custCompNameChanged(customersData.tableCustomerCompany)" class="customerfieldsvalue" placeholder="Type Here" ng-model="customersData.tableCustomerCompany">
+                        </div>
+                    </div>
+                    <br>
+                    <div layout="row">
+                        <b class="customerfieldskey">Contact Person Name</b>
+                        <input ng-class="{submitted: isCustomerContactFNameValid}" ng-change="custFNameChanged(customersData.tableCustomerFirstName)" style="width: 20%" type="text" class="customerfieldsvalue" placeholder="First Name" ng-model="customersData.tableCustomerFirstName">&nbsp;&nbsp;&nbsp;
+                        <input ng-class="{submitted: isCustomerContactLNameValid}" ng-change="custLNameChanged(customersData.tableCustomerLastName)" style="width: 18%" type="text" class="customerfieldsvalue" placeholder="Last Name" ng-model="customersData.tableCustomerLastName">
+                    </div>
+                    <br>
+                    <div layout="row">
+                        <b class="customerfieldskey">Email Id</b>
+                        <input ng-class="{submitted: isCustomerEmailValid}" type="email" name="custEmail" id="custEmail" class="customerfieldsvalue" placeholder="Type Here" ng-model="customersData.tableCustomerEmail" ng-change="custEmailChanged(customersData.tableCustomerEmail);">
+                    </div>
+                    <br>
+                    <div layout="row">
+                        <b class="customerfieldskey">Phone Number</b>
+                        <input ng-class="{submitted: isCustomerPhoneNumValid}" id="phNo" type="text" ng-keypress="Num($event)" name="phNo" class="customerfieldsvalue" placeholder="Type Here" ng-model="customersData.tableCustomerPhone" ng-change="custPhoneChanged(customersData.tableCustomerPhone)">
+                        <span ng-if="myForm.phNo.$error.pattern == true" ng-init="validatePhone()"></span>
+                    </div>
+                </div>
+            </md-dialog-content>
+            <!-- {{customersData}} -->
+            <md-dialog-actions style="background-color: #30373B; min-height: 60px;" layout="row">
+                <span flex></span>
+                <span flex></span>
+                <md-button class="cancel-btn" ng-click="cancelCustomerData()">
+                    Cancel
+                </md-button>
+                <button class="action-btn" ng-click="saveCustomerData(customersData,customerMode)" ng-if="customerMode == 'edit'">
+                    Update
+                </button>
+                <button class="action-btn" ng-click="saveCustomerData(customersData,customerMode)" ng-if="customerMode == 'add'">
+                    Add
+                </button>
+            </md-dialog-actions>
+        </form>
+    </md-dialog>
+</script>

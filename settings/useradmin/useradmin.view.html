@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Glaucus UI</title>
+    <link href="settings/useradmin/useradmin.css" rel="stylesheet">
+</head>
+
+<body ng-app="tableApp">
+    <div ng-include src="'menuBar/secureMenuBar.html'"></div>
+    <div class="container-fluid">
+        <div class="row" style="margin-left: auto; margin-right: auto;">
+            <div class="col-md-6">
+                <p class="screen-heading">User Admin</p>
+            </div>
+            <div class="col-md-6 button-col">
+                <button type="button" class="btn add-button font pull-right" ng-click="showAddNewUserModal()">
+                <img width="20px" height="20px" color="white" src="images/svg/add.svg">
+                &nbsp;&nbsp;Add New User
+            </button>
+        </div>
+    </div>
+    <div class="row user-search">
+        <img width="20px" height="20px" src="images/svg/header_search.svg"/>
+        <span class="font-big">&nbsp;&nbsp;Search User</span>
+        <img width="20px" height="20px" ng-if="searchUserClicked==false" class="pull-right"
+             src="images/svg/expand_icon.svg" ng-click="toggleSearchRow()"/>
+        <img width="20px" height="20px" ng-if="searchUserClicked==true" class="pull-right"
+             src="images/svg/collaps_icon.svg" ng-click="toggleSearchRow()"/>
+    </div>
+
+    <div ng-if="searchUserClicked==true" class="row user-search-row search-row-content search-row-top-border">
+
+            <div class="col-xs-2 font margin-top-10 col-xs-offset-1">Search User</div>
+
+            <div class="col-xs-5 margin-top-5">
+                <div class="">
+
+                </div>
+                <input type="text" ng-model="SearchUseradmin.UserName" name="useradminSearch" placeholder="Search user"
+                       class="form-control darkgrey-bottom-border font input-less-padding" required="required">
+                <!--<div angucomplete-alt id="ex5" placeholder="Search posts" pause="500" selected-object="selectedProject"-->
+                <!--remote-url="{{baseUserUrl}}" search-fields="id" title-field="title"-->
+                <!--minlength="1" input-class="form-control main-bottom-border" match-class="highlight"></div>-->
+                <!--<angucomplete id="UserControl" placeholder="Search" pause="400"-->
+                <!--remote-url="https://api.github.com/search/repositories"-->
+                <!--selected-object="searchedUser"-->
+                <!--title-field="UserName"-->
+                <!--description-field="UserDescription"-->
+                <!--code-field="tableSkuClientSkuCode"-->
+                <!--inputclass="form-control main-bottom-border"></angucomplete>-->
+
+            </div>
+            <div class="col-xs-3">
+                <button type="button" ng-disabled="SearchUseradmin.UserName == null || SearchUseradmin.UserName == ''" ng-click="listOfUsers(SearchUseradmin.UserName)" class="btn btn-default mybut">Submit</button>
+                <button  ng-disabled="SearchUseradmin.UserName == null || SearchUseradmin.UserName == ''" title="Clear Applied Filters" class="btn clearFilter"
+                        ng-click="clearAction(SearchUseradmin)">
+                </button>
+            </div>
+
+    </div>
+    <div class="row border-top user-search">
+        <div class="col-xs-2" style="padding-top: 5px;">
+            <span class="total-count-heading">Total Users</span>
+        </div>
+        <div class="col-xs-3">
+            <div class="circle-oval circle-orange" style="margin-left: -45px;">
+                    <span>
+                      <!--{{usersCount}}-->
+                      {{userDataCount.Count}}
+                    </span>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="row main-list" style="padding-left: 0px !important; padding-right: 0px !important;">
+        <table class="table table-striped-custom table-condensed table-responsive table-hover">
+            <thead class="main-list-header-user">
+            <tr>
+                <td>Name</td>
+                <td>Role</td>
+                <td>Email Id</td>
+                <td>Phone Number</td>
+                <td>Action</td>
+            </tr>
+            </thead>
+            <!-- repeat on tbody -->
+            <tbody>
+            <tr class="clickable-row-user" ng-repeat="user in usersData">
+                <td>{{user.tableUserFirstName}} {{user.tableUserLastName}}</td>
+                <td>{{user.tableUserRoleType.tableUserRoleTypeString}}</td>
+                <td>{{user.tableUserEmailId}}</td>
+                <td>{{user.tableUserPhoneNo}}</td>
+                <td>
+
+                    <span>
+                    <ul class="list-inline" ng-if="user.isSelf == false">
+                        <li style="border-right:1px solid gray;">
+                            <a href="javascript:void(0);"
+                               ng-if="user.tableUserStatusType.tableUserStatusTypeString != 'Active'"
+                               ng-click="activationLink(user,'active');"><img ng-src="images/svg/black_list.svg"
+                                                                              title="Move to black list" style="width:20px;"></a>
+                            <a href="javascript:void(0);"
+                               ng-if="user.tableUserStatusType.tableUserStatusTypeString == 'Active'"
+                               ng-click="activationLink(user,'deactive')"><img ng-src="images/svg/white_list.svg"
+                                                                               title="Move to white list" style="width:20px;"></a>
+                        </li>
+                        <li>
+                            <!--images/svg/edit.svg-->
+                            <a href="javascript:void(0);" ng-click="EditUserAdmin(user)"><img ng-src="images/svg/edit.svg" style="width: 20px;"></a>
+                        </li>
+                    </ul>
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <!-- END TABLE -->
+    </div>
+        <div class="full-width">
+            <div class="col-lg-6 col-md-6 col-xs-12">
+                <!--<h5>Showing Orders <span>16</span> to 20 of {{userDataCount.Count}}</h5>-->
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-12 pull-right">
+                <pagination total-items="userDataCount.Count" ng-model="currentPage"  ng-change="pageChanged()" items-per-page="5" class="pull-right"></pagination>
+            </div>
+        </div>
+    <div class="modal fade" id="addNewUserModal" role="dialog" aria-labelledby="addNewUserModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" style="width: 800px;">
+            <form ng-submit="RoleSubmission.$valid && addNewUser(UserAdmin)" novalidate name="RoleSubmission">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;"
+                         height="100px">
+                        <button type="button" class="close" ng-click="cancelAddNewUserModal()">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+                        <p class="dialog-heading-p" id="addNewUserModalLabel">Add New User</p>
+
+                    </div>
+                    <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+
+                        <div class="container-fluid">
+
+                            <div class="row row-margin-top">
+                                <div class="col-md-3 margin-top-5">
+                                    <span class="font">First Name <span style="color:red;">*</span></span>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" ng-model="UserAdmin.newFirstName" name="Fname"
+                                           class="form-control darkgrey-bottom-border font input-less-padding" required
+                                           placeholder="Enter First Name"/>
+
+                                    <div class="error ng-hide" ng-show="RoleSubmission.$submitted" aria-hidden="true">
+                                        <small class="error-msg text-danger"
+                                               ng-show="RoleSubmission.Fname.$error.required && RoleSubmission.Fname.$pristine">
+                                            First Name is required.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row row-margin-top">
+                                <div class="col-md-3 margin-top-5">
+                                    <span class="font"> Last Name <span style="color:red;">*</span></span>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" ng-model="UserAdmin.newLastName" name="Lname"
+                                           class="form-control darkgrey-bottom-border font input-less-padding" required
+                                           placeholder="Enter Last Name"/>
+                                    <div class="error ng-hide" ng-show="RoleSubmission.$submitted" aria-hidden="true">
+                                        <small class="error-msg text-danger"
+                                               ng-show="RoleSubmission.Lname.$error.required && RoleSubmission.Lname.$pristine">
+                                            Last Name is required.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row row-margin-top-medium">
+                                <div class="col-md-3 margin-top-5">
+                                    <span class="font">Email Id <span style="color:red;">*</span></span>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="email" ng-model="UserAdmin.newUserEmail" ng-pattern="EmailRegex" name="UserEmail"
+                                           class="form-control darkgrey-bottom-border font input-less-padding" required
+                                           placeholder="a@gmail.com"/>
+
+                                    <div class="error ng-hide" ng-show="RoleSubmission.$submitted" aria-hidden="true">
+                                        <small class="error-msg text-danger"
+                                               ng-show="RoleSubmission.UserEmail.$error.required && RoleSubmission.UserEmail.$pristine">
+                                            Email ID is required.
+                                        </small>
+                                        <small class="error-msg text-danger"
+                                               ng-show="RoleSubmission.UserEmail.$error.pattern">
+                                            Email ID is invalid.
+                                        </small>
+                                    </div>
+                                    <!--<div class="error ng-hide" ng-show="RoleSubmission.$touched && RoleSubmission.$invalid" aria-hidden="true">-->
+                                        <!---->
+                                    <!--</div>-->
+                                </div>
+                            </div>
+
+                            <div class="row row-margin-top-medium">
+                                <div class="col-md-3 margin-top-5">
+                                    <span class="font">Phone Number <span style="color:red;">*</span></span>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" ng-model="UserAdmin.newUserPhone" numbers-only ng-minlength="10" ng-maxlength="12" name="Pnumber"
+                                           class="form-control darkgrey-bottom-border font input-less-padding" required
+                                           placeholder="Enter Phone Number"/>
+
+                                    <div class="error ng-hide" ng-show="RoleSubmission.$submitted" aria-hidden="true">
+                                        <small class="error-msg text-danger"
+                                               ng-show="RoleSubmission.Pnumber.$error.required && RoleSubmission.Pnumber.$pristine">
+                                            Phone Number is required.
+                                        </small>
+                                    </div>
+                                    <div class="error ng-hide" ng-show="RoleSubmission.Pnumber.$touched && RoleSubmission.Pnumber.$invalid" aria-hidden="true">
+                                        <small class="error-msg text-danger"
+                                               ng-show="RoleSubmission.Pnumber.$error.minlength">
+                                           Minimum 10 digit Phone Number is required.
+                                        </small>
+                                    </div>
+                                    <div class="error ng-hide" ng-show="RoleSubmission.Pnumber.$touched && RoleSubmission.Pnumber.$invalid" aria-hidden="true">
+                                        <small class="error-msg text-danger"
+                                               ng-show="RoleSubmission.Pnumber.$error.maxLength">
+                                            Maximum 12 digit Phone Number is required.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row row-margin-top-medium">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <span class="font">Role <span style="color:red;">*</span></span>
+                                        </div>
+                                        <div class="col-md-4" style="left: 5px;padding: 0px;">
+                                            <div class="select-style"
+                                                 style="max-width: 225px;width: 100%;margin:0px 15px 0px 10px;">
+
+
+                                                <select ng-model="UserAdmin.RoleType" id="UserRole" name="URole" required
+                                                        ng-change="userChange()"
+                                                        >
+                                                    <option value="">select Role</option>
+                                                    <option ng-repeat="role in selectRole" ng-selected="UserAdmin.rollId.tableUserRoleTypeString == role.tableUserRoleTypeString" value="{{role}}">
+                                                        {{role.tableUserRoleTypeString}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="error ng-hide" ng-show="RoleSubmission.$submitted"
+                                                 aria-hidden="true">
+                                                <small class="error-msg text-danger"
+                                                       ng-show="RoleSubmission.URole.$error.required && RoleSubmission.URole.$pristine">
+                                                    Role is required.
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 text-left"
+                                             style="margin-top:-5px;padding: 0px;">
+                                            <a href="javascript:void(0);" ng-click="EditRole(true)" ng-if="secondShow"
+                                               class="btn btn-default btn-sm">Edit Role</a>
+                                            <a href="javascript:void(0);" ng-click="EditRole(false)"
+                                               class="btn btn-danger btn-sm" style="background-color: #EA512D;">+ Add
+                                                Role</a>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="row row-margin-top">
+                                <!--<md-toolbar class="md-small accordion-color">-->
+                                <!--<div class="md-toolbar-tools">-->
+                                <!--<span class="font-big">Create New Role</span>-->
+                                <!--<span flex=""></span>-->
+                                <!--<md-button class="md-icon-button" aria-label="Favorite">-->
+                                <!--<md-icon ng-if="newRoleClicked==false" md-svg-icon="images/svg/expand_icon.svg" ng-click="toggleNewRole()"></md-icon>-->
+                                <!--<md-icon ng-if="newRoleClicked==true" md-svg-icon="images/svg/collaps_icon.svg" ng-click="toggleNewRole()"></md-icon>-->
+                                <!--</md-button>-->
+                                <!--</div>-->
+                                <!--</md-toolbar>-->
+                                <div class="col-md-12" style="padding-left: 25px !important;" ng-if="editPermission">
+                                    <form ng-submit="editRole.$valid && updateRoles()" novalidate name="editRole">
+                                        <h3>Edit Role</h3>
+
+                                        <div class="row row-margin-top-x-medium">
+                                            <div class="col-md-3 margin-top-5">
+                                                <span class="font">Name of Role</span>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input type="text" ng-model="ManageUserRoleName" name="EditRoleName"
+                                                       class="form-control darkgrey-bottom-border font input-less-padding"/>
+
+                                            </div>
+                                        </div>
+                                        <div class="row row-margin-top">
+                                            <div class="col-md-6">
+                                                <span class="font">Assign Tasks</span>
+                                            </div>
+                                        </div>
+                                        <div class="row main-list row-margin-bottom-small"
+                                             style="padding-left: 0px !important; padding-right: 0px !important;">
+                                            <div class="col-md-12">
+                                                <table class="table table-striped-custom table-condensed table-responsive table-hover">
+                                                    <thead class="main-list-header-role">
+                                                    <tr>
+                                                        <th>Task Name</th>
+                                                        <th>Screen Access</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody class="clickable-row-role">
+                                                    <!-- ng-repeat on tr -->
+                                                    <tr ng-repeat="category in ManageUserdataRole">
+                                                        <td>
+                                                            {{category.tableUserRolePermissionType.tableUserRolePermissionTypeString}}
+                                                            <!--{{category}}-->
+                                                        </td>
+
+                                                        <td>
+                                                            <div class="customChek">
+                                                                <label class="checkbox">
+                                                                    <input type="checkbox"
+                                                                           ng-click="ChekedChange(category.checked,ManageUserdataRole,$index)"
+                                                                           ng-model="category.checked">
+                                                                    <i class="fa fa-check-square" aria-hidden="true"
+                                                                       ng-show="category.checked"
+                                                                       style="color:#EA512D;font-size:24px;"></i>
+                                                                    <i class="fa fa-square-o" aria-hidden="true"
+                                                                       ng-hide="category.checked"
+                                                                       style="font-size:24px;"></i>
+                                                                </label>
+                                                            </div>
+                                                            <!--<md-checkbox ng-click="ChekedChange(category.checked,ManageUserdataRole,$index)" ng-model="category.checked"></md-checkbox>-->
+
+                                                        </td>
+
+                                                    </tr>
+                                                    </tbody>
+
+                                                </table>
+                                                <div class="col-md-12 col-sm-12 col-xs-12 text-right">
+                                                    <button type="button" class="btn-danger btn"
+                                                            ng-click="updateRoles(ManageUserRoleName,ManageUserID)">
+                                                        Update Roles
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!--============================ role selection on the basis of created one =================-->
+
+                                <div class="col-md-12" style="padding-left: 25px !important;" ng-if="createPermission">
+                                    <h3>Create Role</h3>
+
+                                    <form ng-submit="CreateRole.$valid && createRoles()" novalidate name="CreateRole">
+                                        <div class="row row-margin-top-x-medium">
+                                            <div class="col-md-3 margin-top-5">
+                                                <span class="font">Name of Role</span>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input type="text" ng-model="newRole" name="newRoleName"
+                                                       class="form-control darkgrey-bottom-border font input-less-padding"/>
+                                                <!--<div class="error ng-hide" ng-show="CreateRole.$submitted">-->
+                                                <!--<small class="error text-danger" ng-show="CreateRole.newRoleName.$error.required && CreateRole.newRoleName.$pristine" aria-hidden="false">-->
+                                                <!--Role Name is required.-->
+                                                <!--</small>-->
+                                                <!--</div>-->
+                                            </div>
+                                        </div>
+                                        <div class="row row-margin-top">
+                                            <div class="col-md-6">
+                                                <span class="font">Assign Tasks</span>
+                                            </div>
+                                        </div>
+                                        <div class="row main-list row-margin-bottom-small"
+                                             style="padding-left: 0px !important; padding-right: 0px !important;">
+                                            <div class="col-md-12">
+                                                <table class="table table-striped-custom table-condensed table-responsive table-hover">
+                                                    <thead class="main-list-header-role">
+                                                    <tr>
+                                                        <th>Task Name</th>
+                                                        <th>Screen Access</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody class="clickable-row-role">
+                                                    <!-- ng-repeat on tr -->
+                                                    <tr ng-repeat="category in selectPermissionTypeRole.roles">
+                                                        <td>{{category.tableUserRolePermissionTypeString}}</td>
+                                                        <td>
+                                                            <md-checkbox role="checkbox" ng-click="bitchange(category)"
+                                                                         ng-checked="selection.indexOf(category)>-1"
+                                                                         ng-model="Mycategory"
+                                                                         value="{{category}}"></md-checkbox>
+                                                        </td>
+
+                                                    </tr>
+                                                    </tbody>
+
+                                                </table>
+                                                <div class="col-md-12 col-sm-12 col-xs-12 text-right">
+                                                    <button type="button" class="btn-danger btn"
+                                                            style="background-color:#F0592B;"
+                                                            ng-click="createRoles(newRole)">Submit Roles
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+
+                            </div>
+                            <div ng-if="newRoleClicked==true" class="row accordion-color">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="modal-footer modal-dialog-footer">
+                        <button type="button" class="cancel-btn" ng-click="cancelAddNewUserModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="action-btn" ng-if="AddUserBtn">
+                            Done
+                        </button>
+                        <button type="button" class="action-btn" ng-if="EditUser" ng-click="EditUserAdminSubmitAction(UserAdmin)">Update</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+</div>
+</body>
+
+</html>
+
+
+<!--
+
+ var newsite = {};
+        newsite.tableUserRolePermissionType = {
+            'idtableUserRolePermissionTypeId':site.idtableUserRolePermissionTypeId,
+            'tableUserRolePermissionTypeString':site.tableUserRolePermissionTypeString
+        };
+
+-->

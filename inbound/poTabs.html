@@ -1,0 +1,163 @@
+<md-tab label="PO" md-active="selectedTab==='PO'">
+    <md-content class="md-padding" style="padding: 0px;overflow: hidden;">
+        <div class="row orderscreen-channel row-margin-top-x-medium" style="padding-top: 20px !important;">
+            <div class="col-md-4">
+                <span class="font">Choose Warehouse</span>
+                <select ng-model="wareHouseId" class="orderscreen-dropdown mainDropDownOrder">
+                    <option value="">
+                        All
+                    </option>
+                    <option ng-repeat="option in wareHousesData"
+                            value="{{option}}">
+                        {{option.tableWarehouseDetailsShortname}}
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <div class="col-md-4" style="margin-top:3px;">
+                    <span class="font">Search SKU</span>
+                </div>
+                <div class="col-md-8" style="padding-left:0px;">
+                    {{skuId=searchedProduct.originalObject.idtableSkuId;""}}
+                    <angucomplete id="products1" placeholder="Search product" pause="400" selectedobject="searchedProduct"
+                                  url="{{baseSkuUrl}}" titlefield="tableSkuName"
+                                  imagefield="/omsservices/webapi/skus/1/images/1" descriptionfield="tableSkuDescription"
+                                  inputclass="form-control main-bottom-border"></angucomplete>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="col-md-6" style="margin-top:3px;">
+                    <span class="font">Search Vendors</span>
+                </div>
+                <div class="col-md-6" style="padding-left:0px;">
+                    {{customerid=searchedCustomer.originalObject.idtableCustomerId;""}}
+                    <angucomplete id="customersMain" placeholder="Search Vendor" pause="400"
+                                  selectedobject="searchedCustomer" url="{{baseCustomerUrl}}"
+                                  titlefield="tableCustomerFirstName"
+                                  descriptionfield="tableCustomerEmail,tableCustomerPhone"
+                                  inputclass="form-control main-bottom-border"></angucomplete>
+                </div>
+            </div>
+            <div class="col-md-12 row-margin-top-small">
+                <!-- {{startDate | date : "yyyy-MM-dd" }}{{endDate | date : "yyyy-MM-dd"}} -->
+                <div class="col-md-2 margin-top-7">
+                    <span class="font">Choose Date</span>
+                </div>
+                <div class="col-md-3" style="margin-left: -106px;">
+                <md-datepicker ng-model="start1Date" md-min-date="startminDate" md-max-date="startmaxDate"
+                               onkeydown="return false" ng-change="sendStartDate(start1Date)" md-placeholder="Start Date"
+                               style="background-color: inherit;margin-top:3px;"></md-datepicker>
+                    <button ng-if="start1Date != null || start1Date != undefined" title="Deselect Start Date" class="btn dateClear" ng-click="clearStartDate();">
+                    </button>
+
+                </div>
+                <div class="col-md-3">
+                <md-datepicker ng-model="end1Date" md-min-date="endminDate" md-max-date="endmaxDate"
+                               onkeydown="return false" ng-change="sendEndDate(end1Date)" md-placeholder="End Date"
+                               style="background-color: inherit;margin-top:3px;"></md-datepicker>
+                    <button ng-if="end1Date != null || end1Date != undefined" title="Deselect End Date" class="btn dateClear" ng-click="clearEndDate()">
+                    </button>
+                    </div>
+                <button type="button" class="btn btn-default mybut" style="margin-left:0px;"
+                        ng-click="submitAction(wareHouseId,skuId,start1Date,end1Date,customerid)">Submit
+                </button>
+                <a title="Clear Applied Filters" class="btn clearFilter" ng-click="clearAction();">
+                </a>
+            </div>
+        </div>
+        
+        <div class="row row-margin-top-small">
+            <div class="col-md-12">
+                <ul class="nav navbar-nav screen-tabs">
+                    <li>
+                        <button type="button" class="btn sharp font" ng-style="tabsColor"
+                                ng-click="listOfStatesCount('all',1)"><span>New</span><span
+                                style="color: #737373 !important; font-weight: 400 !important;">&nbsp;(11)</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="btn sharp font" ng-style="tabsColor1"
+                                ng-click="listOfStatesCount('new',1)"><span>In Process</span><span
+                                style="color: #737373 !important; font-weight: 400 !important;">&nbsp;(11)</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="btn sharp font" ng-style="tabsColor2"
+                                ng-click="listOfStatesCount('process',1)"><span>Complete</span><span
+                                style="color: #737373 !important; font-weight: 400 !important;">&nbsp;(11)</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row main-list">
+            <table class="table table-striped-custom table-condensed table-responsive table-hover">
+                <thead class="main-list-header-sku">
+                    <!-- table header -->
+                    <tr>
+                        <td>Order No</td>
+                        <td>Customer Name</td>
+                        <td>Sales Channel</td>
+                        <td>Date</td>
+                        <td>Remarks</td>
+                        <td>Quantity</td>
+                        <td>Total Amount</td>
+                        <td>Action</td>
+                        <td></td>
+                    </tr>
+                </thead>
+
+                <tbody data-ng-repeat="orderData in orderLists" data-ng-switch on="dayDataCollapse[$index]">
+                    <tr class="clickable-row-order">
+                        <td>{{orderData.tableSaleOrderClientOrderNo}}</td>
+                        <td>{{orderData.tableCustomer.tableCustomerFirstName}}</td>
+                        <td>{{orderData.tableSalesChannelValueInfo.tableSalesChannelValueInfoName}}</td>
+                        <td>
+                            {{orderData.tableSaleOrderDate[2]}}/{{orderData.tableSaleOrderDate[1]}}/{{orderData.tableSaleOrderDate[0]}}
+                        </td>
+                        <td>
+                            <div class="tool-tip">
+                                <img src="images/svg/remarks.svg" style="height:20px; width: 20px;"/>
+
+                                        <span class="tool-tip-text">
+                                              <img src="images/svg/tooltip.svg"/>
+                                              <span>{{orderData.tableSaleOrderRemarks?orderData.tableSaleOrderRemarks:"No Remarks"}}</span>
+                                        </span>
+                            </div>
+                        </td>
+                        <td>{{ orderData.totalQuantity }}</td>
+                        <td>{{ orderData.totalCostAmount }}</td>
+                        <td>
+                            <img ng-src="{{imgsrc1}}" title="Edit" width="20px" height="20px"
+                                 ng-class="{disabled: orderData.tableSalesChannelValueInfo.tableSalesChannelMetaInfo.tableSalesChannelType.idtableSalesChannelTypeId == 1}"
+                                 ng-click="orderData.tableSalesChannelValueInfo.tableSalesChannelMetaInfo.tableSalesChannelType.idtableSalesChannelTypeId == 1 || editOrder(orderData.idtableSaleOrderId)"
+                                 ng-init="imgsrc1='images/svg/edit.svg'" ng-mouseover="imgsrc1='images/svg/edit_hover.svg'"
+                                 ng-mouseout="imgsrc1='images/svg/edit.svg'"> |
+                            <img ng-src="{{imgsrc2}}" title="Copy" width="20px" height="20px"
+                                 ng-class="{disabled: orderData.tableSalesChannelValueInfo.tableSalesChannelMetaInfo.tableSalesChannelType.idtableSalesChannelTypeId == 1}"
+                                 ng-click="orderData.tableSalesChannelValueInfo.tableSalesChannelMetaInfo.tableSalesChannelType.idtableSalesChannelTypeId == 1 || copyOrder(orderData.idtableSaleOrderId)"
+                                 ng-init="imgsrc2='images/svg/copy_active.svg'"
+                                 ng-mouseover="imgsrc2='images/svg/copy_hover.svg'"
+                                 ng-mouseout="imgsrc2='images/svg/copy_active.svg'">
+                        </td>
+                        <td ng-show="dayDataCollapse == null || dayDataCollapse == undefined || dayDataCollapse == []"><img
+                                src="images/svg/expand_icon.svg" height="20"
+                                data-ng-click="selectTableRow($index, orderData.tableSaleOrderClientOrderNo);stateTrials(orderLists[$index].tableSaleOrderSkuses);"/>
+                        </td>
+                        <td data-ng-switch-when="false"
+                            data-ng-click="selectTableRow($index, orderData.tableSaleOrderClientOrderNo);stateTrials(orderLists[$index].tableSaleOrderSkuses);">
+                            <img src="images/svg/expand_icon.svg" height="20"/></td>
+                        <td data-ng-switch-when="true"
+                            data-ng-click="selectTableRow($index, orderData.tableSaleOrderClientOrderNo);stateTrials(orderLists[$index].tableSaleOrderSkuses);">
+                            <img src="images/svg/collaps_icon.svg" height="20"/></td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <!-- END TABLE -->
+            
+        </div>
+    </md-content>
+</md-tab>
+<!-- Add New SKU Dialog -->
+

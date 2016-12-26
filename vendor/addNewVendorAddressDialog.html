@@ -1,0 +1,118 @@
+<div class="modal fade" id="vendorAddressModal" role="dialog" aria-labelledby="vendorAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 1000px;">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                <button type="button" class="close" ng-click="cancelAddress();">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <p ng-if="vendorAddressMode=='add'" class="dialog-heading-p" id="vendorAddressModalLabel">Add New Address</p>
+                <p ng-if="vendorAddressMode=='edit'" class="dialog-heading-p" id="vendorAddressModalLabel">Edit Address</p>
+
+            </div>
+            <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Information Area -->
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">Contact Person Name</div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="First Name" ng-model="vendorAddress.contactPersonName">
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">Email Id</div>
+                                <div class="col-md-6">
+                                    <input type="email" name="custEmail" id="custEmail" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="vendorAddress.contactEmail" ng-blur="validateEmail(myForm.custEmail.$valid);">
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">Phone Number</div>
+                                <div class="col-md-6">
+                                    <input type="text" ng-keypress="Num($event)" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="vendorAddress.contactPhone">
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">Address Line 1</div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="vendorAddress.adLine1" ng-blur="callGetLatLong('adLine1')">
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">Address Line 2</div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="vendorAddress.adLine2" ng-blur="callGetLatLong('adLine2')">
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">Address Line 3</div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="vendorAddress.adLine3" ng-blur="callGetLatLong('adLine3')">
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">State</div>
+                                <div class="col-md-6">
+                                    <select ng-model="vendorAddress.stateData" class="form-control" ng-options="option as option.tableStateLongName for option in regionsStatesArray" ng-change="regionsStatesDistrictData(vendorAddress.stateData,vendorId)">
+                                  <option value="">Select State</option>
+                                </select>
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">District</div>
+                                <div class="col-md-6">
+                                    <select ng-model="vendorAddress.districtData" class="form-control" ng-options="option as option.tableDistrictLongName for option in regionsStatesDistrictArray" ng-change="regionsStatesDistrictsCityData(vendorAddress.stateData,vendorAddress.districtData);">
+                                  <option value="">Select District</option>
+                                </select>
+                                </div>
+                            </div>
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">City</div>
+                                <div class="col-md-6">
+                                    <select ng-model="vendorAddress.city" class="form-control" ng-options="option as option.tableCityLongName for option in regionsStatesDistrictsCityArray" ng-change="changeCity(vendorAddress.city);">
+                                  <option value="">Select City</option>
+                                </select>
+                                </div>
+                            </div>
+
+
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">PIN Code</div>
+                                <div class="col-md-6">
+                                    <input id="pincode" type="number" class="form-control darkgrey-bottom-border font input-less-padding" ng-blur="callGetLatLong('pincode')" placeholder="Type Here" ng-model="vendorAddress.pincode">
+                                </div>
+                            </div>
+                            <div class="row padding-top-15">
+                                <div class="col-md-6 font">TIN No</div>
+                                <div class="col-md-6">
+                                    <input type="text" min="0" name="tin" id="tinArray" class="form-control darkgrey-bottom-border font input-less-padding" placeholder="Type Here" ng-model="vendorAddress.tinNo">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 padding-top-15">
+                            <!-- Map Area -->
+                            <demo-map ng-if="searchLocation!=null" ng-model="searchLocation" class="demo-map">
+                            </demo-map>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer modal-dialog-footer">
+                <button type="button" class="cancel-btn" ng-click="cancelAddress();">Cancel</button>
+                <button ng-if="vendorAddressMode=='add'" type="button" class="action-btn" ng-click="saveShippingAddressData();">Add</button>
+                <button ng-if="vendorAddressMode=='edit'" type="button" class="action-btn" ng-click="editShippingAddressData();">Update</button>
+            </div>
+        </div>
+    </div>
+</div>

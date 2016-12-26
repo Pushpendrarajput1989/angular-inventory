@@ -1,0 +1,331 @@
+<md-content class="md-padding" style="padding: 0px;overflow: hidden;">
+    <div class="row search-row-heading">
+        <md-toolbar class="md-small search-row-toolbar search-row">
+            <div class="md-toolbar-tools">
+                <md-icon md-svg-icon="images/svg/header_search.svg"></md-icon>
+                <span class="font">&nbsp;&nbsp;Search Work Order</span>
+                <span flex=""></span>
+                <md-button class="md-icon-button" aria-label="Favorite" ng-click="toggleMailerSearchRow()">
+                    <md-icon ng-if="searchWorkOrderMailerClicked==false" md-svg-icon="images/svg/expand_icon.svg"></md-icon>
+                    <md-icon ng-if="searchWorkOrderMailerClicked==true" md-svg-icon="images/svg/collaps_icon.svg"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+    </div>
+    <div ng-show="searchWorkOrderMailerClicked==true" class="row search-row search-row-content search-row-top-border">
+        <div layout="row">
+            <div class="inv-search-margin">
+                <span class="font">Select Warehouse</span>
+                <select ng-model="warehouseid" class="inventoryscreen-dropdown font" ng-change="callDisabledMailer();">
+                    <option value="">
+                        Select
+                    </option>
+                    <option ng-repeat="option in wareHousesData"
+                        value="{{option.idtableWarehouseDetailsId}}">
+                        {{option.tableWarehouseDetailsShortname}}
+                    </option>
+                 </select>
+            </div>
+            <div>
+                <md-datepicker ng-model="start1Date" md-min-date="mainstartminDate" md-max-date="mainstartmaxDate" ng-change="mainsendStartDate(start1Date);callDisabledMailer();" md-placeholder="Start Date" style="background-color: inherit;margin-top:3px;"></md-datepicker>
+                <md-datepicker ng-model="end1Date" md-min-date="mainendminDate" md-max-date="mainendmaxDate" ng-change="mainsendEndDate(end1Date);callDisabledMailer();" md-placeholder="End Date" style="background-color: inherit;margin-top:3px;"></md-datepicker>
+                <button type="button" class="btn btn-default mybut" ng-disabled="isSubmitDisabledMailer" ng-click="submitWorkOrderMailerAction(warehouseid,start1Date,end1Date)">Submit</button>
+                <button title="Clear Applied Filters" ng-disabled="isResetDisabledMailer" class="btn clearFilter" ng-click="clearAction3();warehouseid=null;start1Date=null;end1Date=null">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <button type="button" class="btn add-button font pull-right btn-top-margin" ng-click="showAddFreeMailerDialog($event)">Create New Free Mailer</button>
+        </div>
+    </div>
+
+    <div class="row row-margin-top-small">
+        <div class="col-md-12">
+            <ul class="nav navbar-nav screen-tabs">
+                <li>
+                    <button type="button" class="btn sharp font" ng-style="tabsColorMailer"
+                            ng-click="listOfWorkOrderMailerCount('all',1)"><span>All</span><span
+                            style="color: #737373 !important; font-weight: 400 !important;">&nbsp;({{allCountMailer}})</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="btn sharp font" ng-style="tabsColorMailer1"
+                            ng-click="listOfWorkOrderMailerCount('new',1)"><span>New</span><span
+                            style="color: #737373 !important; font-weight: 400 !important;">&nbsp;({{newCountMailer}})</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="btn sharp font" ng-style="tabsColorMailer2"
+                            ng-click="listOfWorkOrderMailerCount('process',1)"><span>In Process</span><span
+                            style="color: #737373 !important; font-weight: 400 !important;">&nbsp;({{processCountMailer}})</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="btn sharp" ng-style="tabsColorMailer3"
+                            ng-click="listOfWorkOrderMailerCount('hold',1)"><span>On Hold</span><span
+                            style="color: #737373 !important; font-weight: 400 !important;">&nbsp;({{holdCountMailer}})</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="btn sharp" ng-style="tabsColorMailer4"
+                            ng-click="listOfWorkOrderMailerCount('closed',1)"><span>Closed</span><span
+                            style="color: #737373 !important; font-weight: 400 !important;">&nbsp;({{closedCountMailer}})</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="btn sharp" ng-style="tabsColorMailer5"
+                            ng-click="listOfWorkOrderMailerCount('cancelled',1)"><span>Cancelled</span><span
+                            style="color: #737373 !important; font-weight: 400 !important;">&nbsp;({{cancelledCountMailer}})</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div> 
+
+
+    <div class="row main-list">
+        <table class="table table-striped-custom table-condensed table-responsive table-hover">
+            <thead class="main-list-header-wo">
+                <!-- table header -->
+                <tr>
+                    <td>Work Order Id</td>
+                    <td>SKU Name</td>
+                    <td>SKU ID</td>
+                    <td>Warehouse</td>
+                    <td>Date</td>
+                    <td>Action</td>
+                    <td></td>                    
+                </tr>
+            </thead>
+            <tbody ng-repeat="workOrdermailerData in workOrdermailerLists" data-ng-switch on="dayDataCollapseMailer[$index]">
+                <tr class="clickable-row-wo">
+                    <td>{{workOrdermailerData.idtableWorkOrderId}}</td>
+                    <td>{{workOrdermailerData.tableWorkOrderSkus[0].tableSku.tableSkuName}}</td>
+                    <td>{{workOrdermailerData.tableWorkOrderSkus[0].tableSku.tableSkuClientSkuCode}}</td>
+                    <td>{{workOrdermailerData.tableWarehouseDetails.tableWarehouseDetailsShortname}}</td>
+                    <td>{{workOrdermailerData.tableWorkOrderDatetime[2]}}-{{workOrdermailerData.tableWorkOrderDatetime[1]}}-{{workOrdermailerData.tableWorkOrderDatetime[0]}}</td>
+                    <td>
+                        <img ng-src="{{imgsrc1}}" title="Edit" width="20px" height="20px" data-ng-click="editWorkOrders($event,workOrdermailerData.idtableWorkOrderId,workOrdermailerData.tableWorkOrderType.idtableWorkOrderTypeId)" ng-init="imgsrc1='images/svg/edit.svg'" ng-mouseover="imgsrc1='images/svg/edit_hover.svg'"
+                            ng-mouseout="imgsrc1='images/svg/edit.svg'" />&nbsp;|&nbsp;
+                        <img ng-if="workOrdermailerData.tableWorkOrderStatusType.idtableWorkOrderStatusTypeId!=5" ng-src="{{imgsrc2}}" title="Cancel" width="20px" height="20px" data-ng-click="cancelWorkOrder(workOrdermailerData.idtableWorkOrderId,workOrdermailerData,$event)" ng-init="imgsrc2='images/svg/deactivate.svg'" ng-mouseover="imgsrc2='images/svg/deactivate_hover.svg'"
+                            ng-mouseout="imgsrc2='images/svg/deactivate.svg'" />
+                        <img ng-src="{{imgsrc2}}" title="Cancel" width="20px" height="20px" ng-if="workOrdermailerData.tableWorkOrderStatusType.idtableWorkOrderStatusTypeId==5" style="pointer-events: none;cursor: default;"  data-ng-click="cancelWorkOrder(workOrdermailerData.idtableWorkOrderId,workOrdermailerData,$event)" ng-init="imgsrc2='images/svg/deactivate.svg'" ng-mouseover="imgsrc2='images/svg/deactivate_hover.svg'"
+                            ng-mouseout="imgsrc2='images/svg/deactivate.svg'" />                            
+                    </td>
+                    <td ng-click="selectTableRowMailer($index, workOrdermailerData.idtableWorkOrderId);" ng-show="dayDataCollapseMailer == null || dayDataCollapseMailer == undefined || dayDataCollapseMailer == []"><img src="images/svg/expand_icon.svg" height="22" /></td>
+                    <td ng-click="selectTableRowMailer($index, workOrdermailerData.idtableWorkOrderId);" data-ng-switch-when="false"><img src="images/svg/expand_icon.svg" height="22" /></td>
+                    <td data-ng-switch-when="true" ng-click="selectTableRowMailer($index, workOrdermailerData.idtableWorkOrderId);"><img src="images/svg/collaps_icon.svg" height="22" /></td>                    
+                </tr>
+
+                <tr data-ng-switch-when="true" class="vendor-acc-data-row">
+                    <td colspan="12">
+                        <!-- Header Row -->
+                        <div class="row">
+                            <div class="col-xs-5">
+                                Warehouse Detail
+                            </div>
+                            <div class="col-xs-7">
+                                SKU Detail
+                            </div>
+                        </div>
+
+                        <!-- Data Row -->
+                        <div class="row" id="row-vendor">
+                            <!-- SKU List -->
+                            <div class="col-xs-5">
+
+                                <!-- ng-repeat row -->
+                                <div class="col-xs-10">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <div class="row">
+                                                <b>WareHouse Long Name</b> - {{workOrdermailerData.tableWarehouseDetails.tableWarehouseDetailsLongname}}
+                                                <br>
+                                                <b>WareHouse Short Name</b> - {{workOrdermailerData.tableWarehouseDetails.tableWarehouseDetailsShortname}}
+                                                <br>
+                                                <b>WareHouse Actual Area vs WareHouse Effective Area</b> - {{workOrdermailerData.tableWarehouseDetails.tableWarehouseDetailsActualArea}} vs {{workOrdermailerData.tableWarehouseDetails.tableWarehouseDetailsEffectiveArea}}
+                                                <br>
+                                                <b>WareHouse Address</b> - {{workOrdermailerData.tableWarehouseDetails.tableAddress.tableAddress1}}, {{workOrdermailerData.tableWarehouseDetails.tableAddress.tableAddress2}}, {{workOrdermailerData.tableWarehouseDetails.tableAddress.tableCity.tableCityLongName}} - {{workOrdermailerData.tableWarehouseDetails.tableAddress.tableAddressPin}}
+                                                <br>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" ng-show="vendorData.tableVendorAddresses.length == 0">
+                                        <div class="col-xs-12 font text-center">
+                                            No Addresses Available. Add One by clicking 'Add Address'
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-7">
+
+                                <!-- ng-repeat row -->
+                                <div class="row" ng-repeat="skuData in workOrdermailerData.tableWorkOrderSkus">
+                                    <div class="col-xs-10">
+                                        <div class="row">
+                                            <div class="col-xs-3 font margin-top-5 padding-left-20">
+                                                <b>SKU Name</b>
+                                            </div>
+                                            <div class="col-xs-3 margin-top-5 padding-left-20">
+                                                {{skuData.tableSku.tableSkuName}}
+                                            </div>
+
+                                            <div class="col-xs-3 font margin-top-5 padding-left-10">
+                                                <b>Sku Description</b>
+                                            </div>
+                                            <div class="col-xs-3 margin-top-5 padding-left-20">
+                                                {{skuData.tableSku.tableSkuDescription}}
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-3 font margin-top-5 padding-left-20">
+                                                <b>Sku Code</b>
+                                            </div>
+                                            <div class="col-xs-3 margin-top-5 padding-left-20">
+                                                {{skuData.tableSku.tableSkuClientSkuCode}}
+                                            </div>
+
+                                            <div class="col-xs-3 font margin-top-5 padding-left-10">
+                                                <b>Dimensions(LxBxH/W)</b>
+                                            </div>
+                                            <div class="col-xs-3 margin-top-5 padding-left-20">
+                                                &nbsp;&nbsp;&nbsp;{{skuData.tableSku.tableSkuLength}}&nbsp;<strong>x</strong>&nbsp;{{skuData.tableSku.tableSkuWidth}}&nbsp;<strong>x</strong>&nbsp;{{skuData.tableSku.tableSkuHeight}}&nbsp;{{skuData.tableSku.tableSkuUodmType.tableSkuUodmTypeString.toLowerCase()}}&nbsp;<strong>/</strong>&nbsp;{{skuData.tableSku.tableSkuWeight}}&nbsp;{{skuData.tableSku.tableSkuUowmType.tableSkuUowmTypeString}}
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-4 font"></div>
+                                            <div class="col-xs-6">
+                                                <!-- Back Order Checkbox -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12">
+                                        <hr />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>                
+            </tbody>
+        </table>
+        <!-- END TABLE -->
+        <div class="row" style="margin-top: 0px;">
+<!--             <div class="col-md-6">
+                <p class="showingOrderLabel" ng-show="allworkOrderMailerSize<workOrdMailerCount">Showing Mailer {{allworkOrderMailerStart + 1}} to {{allworkOrderMailerSize}} of {{workOrdMailerCount}}
+                </p>
+                <p class="showingOrderLabel" ng-show="allworkOrderMailerSize>=workOrdMailerCount && workOrdMailerCount!=0">Showing Mailer {{allworkOrderMailerStart + 1}} to {{workOrdMailerCount}} of {{workOrdMailerCount}}
+                </p>
+                <p class="showingOrderLabel" ng-show="workOrdMailerCount==0">No Mailers Available
+                </p>
+            </div> -->
+
+            <div class="col-md-6" ng-show="defaultTabMailer == 'all'">
+                <p class="showingOrderLabel" ng-show="allworkOrderMailerSize<allCountMailer">Showing Mailers {{allworkOrderMailerStart + 1}} to {{allworkOrderMailerSize}} of {{allCountMailer}}
+                </p>
+
+                <p class="showingOrderLabel" ng-show="allworkOrderMailerSize>=allCountMailer && allCountMailer!=0">Showing Mailers {{allworkOrderMailerStart + 1}} to {{allCountMailer}} of {{allCountMailer}}
+                </p>
+
+                <p class="showingOrderLabel" ng-show="allCountMailer==0">No Mailers Available
+                </p>
+            </div>
+            <div class="col-md-6" ng-show="defaultTabMailer == 'new'">
+                <p class="showingOrderLabel" ng-show="allworkOrderMailerSize<newCountMailer">Showing Mailers {{allworkOrderMailerStart + 1}} to {{allworkOrderMailerSize}} of {{newCountMailer}}
+                </p>
+
+                <p class="showingOrderLabel" ng-show="allworkOrderMailerSize>=newCountMailer && newCountMailer!=0">Showing Mailers {{allworkOrderMailerStart + 1}} to {{newCountMailer}} of {{newCountMailer}}
+                </p>
+
+                <p class="showingOrderLabel" ng-show="newCountMailer==0">No Mailers Available
+                </p>
+            </div>
+            <div class="col-md-6" ng-show="defaultTabMailer == 'process'">
+                <p class="showingOrderLabel" ng-show="allworkOrderMailerSize<processCountMailer">Showing Mailers {{allworkOrderMailerStart + 1}} to {{allworkOrderMailerSize}} of {{processCountMailer}}
+                </p>
+
+                <p class="showingOrderLabel" ng-show="allworkOrderSize>=processCountMailer && processCountMailer!=0">Showing Mailers {{allworkOrderStart + 1}} to {{processCountMailer}} of {{processCountMailer}}
+                </p>
+
+                <p class="showingOrderLabel" ng-show="processCountMailer==0">No Mailers Available
+                </p>
+            </div>
+
+            <div class="col-md-6" ng-show="defaultTabMailer == 'hold'">
+                <p class="showingOrderLabel" ng-show="allworkOrderMailerSize<holdCountMailer">Showing Mailers {{allworkOrderMailerStart + 1}} to {{allworkOrderMailerSize}} of {{holdCountMailer}}
+                </p>
+
+                <p class="showingOrderLabel" ng-show="allworkOrderMailerSize>=holdCountMailer && holdCountMailer!=0">Showing Mailers {{allworkOrderMailerStart + 1}} to {{holdCountMailer}} of {{holdCountMailer}}
+                </p>
+
+                <p class="showingOrderLabel" ng-show="holdCountMailer==0">No Mailers Available
+                </p>
+            </div>
+
+            <div class="col-md-6" ng-show="defaultTabMailer == 'closed'">
+                <p class="showingOrderLabel" ng-show="allworkOrderMailerSize<closedCountMailer">Showing Mailers {{allworkOrderMailerStart + 1}} to
+                    {{allworkOrderMailerSize}} of {{closedCountMailer}}
+                </p>
+
+                <p class="showingOrderLabel" ng-show="allworkOrderSize>=closedCountMailer && closedCountMailer!=0">Showing Mailers {{allworkOrderMailerStart + 1}} to {{closedCountMailer}} of {{closedCountMailer}}
+                </p>
+
+                <p class="showingOrderLabel" ng-show="closedCountMailer==0">No Mailers Available
+                </p>
+            </div>
+
+            <div class="col-md-6" ng-show="defaultTabMailer == 'cancelled'">
+                <p class="showingOrderLabel" ng-show="allworkOrderMailerSize<cancelledCountMailer">Showing Mailers {{allworkOrderMailerStart + 1}} to {{allworkOrderMailerSize}} of {{cancelledCountMailer}}
+                </p>
+
+                <p class="showingOrderLabel" ng-show="allworkOrderSize>=cancelledCountMailer && cancelledCountMailer!=0">Showing Mailers {{allworkOrderMailerStart + 1}} to {{cancelledCountMailer}} of {{cancelledCountMailer}}
+                </p>
+
+                <p class="showingOrderLabel" ng-show="cancelledCountMailer==0">No Mailers Available
+                </p>
+            </div>
+
+            <div class="col-md-6">
+                <span class="pull-right">
+                    <!-- pager -->
+                    <ul ng-if="vmPagerWoMailerStart.pages.length" class="pagination">
+                        <li ng-show="vmPagerWoMailerStart.currentPage == 1" ng-class="{disabled:vmPagerWoMailerStart.currentPage === 1}">
+                            <a>&lt;&lt; First</a>
+                        </li>
+                        <li ng-show="vmPagerWoMailerStart.currentPage > 1" ng-class="{disabled:vmPagerWoMailerStart.currentPage === 1}">
+                            <a ng-click="listOfWorkOrderMailerCount(defaultTabMailer,1)">&lt;&lt; First</a>
+                        </li>
+                        <li ng-show="vmPagerWoMailerStart.currentPage == 1" ng-class="{disabled:vmPagerWoMailerStart.currentPage == 1}">
+                            <a>&lt; Previous</a>
+                        </li>
+                        <li ng-show="vmPagerWoMailerStart.currentPage > 1" ng-class="{enabled:vmPagerWoMailerStart.currentPage > 1}">
+                            <a ng-click="listOfWorkOrderMailerCount(defaultTabMailer,vmPagerWoMailerStart.currentPage - 1)">&lt; Previous</a>
+                        </li>
+                        <li ng-repeat="page in vmPagerWoMailerStart.pages" ng-class="{active:vmPagerWoMailerStart.currentPage === page}">
+                            <a ng-click="listOfWorkOrderMailerCount(defaultTabMailer,page)">{{page}}</a>
+                        </li>
+                        <li ng-show="vmPagerWoMailerStart.currentPage < vmPagerWoMailerStart.totalPages" ng-class="{enabled:vmPagerWoMailerStart.currentPage > vmPagerWoMailerStart.totalPages}">
+                            <a ng-click="listOfWorkOrderMailerCount(defaultTabMailer,vmPagerWoMailerStart.currentPage + 1)">Next &gt;</a>
+                        </li>
+                        <li ng-show="vmPagerWoMailerStart.currentPage == vmPagerWoMailerStart.totalPages" ng-class="{disabled:vmPagerWoMailerStart.currentPage == vmPagerWoMailerStart.totalPages}">
+                            <a>Next &gt;</a>
+                        </li>
+                        <li ng-show="vmPagerWoMailerStart.currentPage < vmPagerWoMailerStart.totalPages" ng-class="{disabled:vmPagerWoMailerStart.currentPage === vmPagerWoMailerStart.totalPages}">
+                            <a ng-click="listOfWorkOrderMailerCount(defaultTabMailer,vmPagerWoMailerStart.totalPages)">Last &gt;&gt;</a>
+                        </li>
+                        <li ng-show="vmPagerWoMailerStart.currentPage == vmPagerWoMailerStart.totalPages" ng-class="{disabled:vmPagerWoMailerStart.currentPage === vmPagerWoMailerStart.totalPages}">
+                            <a>Last &gt;&gt;</a>
+                        </li>
+                    </ul>
+                </span>
+            </div>
+        </div>
+    </div>
+</md-content>
+<!-- Add New Kit Dialog -->
+<div ng-include src="'workOrderVas/workOrders/addNewFreeMailerDialog.html'"></div>
+<div ng-include src="'workOrderVas/workOrders/cancelWorkOrder.html'"></div>

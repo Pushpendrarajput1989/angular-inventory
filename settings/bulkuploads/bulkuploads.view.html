@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Glaucus UI</title>
+    <link href="settings/bulkuploads/bulkuploads.css" rel="stylesheet">
+</head>
+
+<body ng-app="tableApp">
+    <div ng-include src="'menuBar/secureMenuBar.html'"></div>
+    <div class="container-fluid">
+        <div class="row row-margin-top-medium" style="margin-left: auto; margin-right: auto;">
+            <div class="col-md-10 no-padding">
+                <ul class="nav navbar-nav screen-tabs">
+                    <li>
+                        <button type="button" class="btn sharp" ng-class="{active: isActive('Masters')}">
+                          <span>Masters</span>
+                          <span style="color: #737373 !important;">&nbsp;(5)</span>
+                      </button>
+                    </li>
+                    <li>
+                        <button type="button" class="btn sharp" ng-class="{active: isActive('SKU')}">
+                          <span>SKU</span>
+                          <span style="color: #737373 !important;">&nbsp;(5)</span>
+                      </button>
+                    </li>
+                    <li>
+                        <button type="button" class="btn sharp" ng-class="{active: isActive('Customers')}">
+                          <span>Customers</span>
+                          <span style="color: #737373 !important;">&nbsp;(5)</span>
+                      </button>
+                    </li>
+                    <li>
+                        <button type="button" class="btn sharp" ng-class="{active: isActive('Vendors')}">
+                          <span>Vendors</span>
+                          <span style="color: #737373 !important;">&nbsp;(5)</span>
+                      </button>
+                    </li>
+                    <li>
+                        <button type="button" class="btn sharp" ng-class="{active: isActive('Orders')}">
+                          <span>Orders</span>
+                          <span style="color: #737373 !important;">&nbsp;(5)</span>
+                      </button>
+                    </li>
+                    <li>
+                        <button type="button" class="btn sharp" ng-class="{active: isActive('PO')}">
+                        <span>PO</span>
+                        <span style="color: #737373 !important;">&nbsp;(5)</span>
+                      </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-2 no-padding">
+                <button type="button" class="btn add-button font pull-right" style="min-width: 160px;" ng-click="showBulkUploadDialog()"><img src="images/svg/add.svg" style="height:20px;">&nbsp;Bulk Upload</button>
+            </div>
+        </div>
+
+        <div class="row row-margin-top-medium" style="margin-left: auto; margin-right: auto;">
+            <md-content>
+                <md-tabs md-selected="0" md-no-ink-bar md-no-ink md-border-bottom md-dynamic-height="">
+                    <div ng-include src="'settings/bulkuploads/tabs/success.html'"></div>
+                    <div ng-include src="'settings/bulkuploads/tabs/error.html'"></div>
+                    <div ng-include src="'settings/bulkuploads/tabs/existing.html'"></div>
+                    <div ng-include src="'settings/bulkuploads/tabs/duplicate.html'"></div>
+                </md-tabs>
+            </md-content>
+        </div>
+    </div>
+
+    <!-- Bulk Upload Dialog -->
+    <div class="modal fade" id="bulkUploadDialog" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" data-keyboard="false" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                    <button type="button" class="close" ng-click="closeBulkUploadDialog()" data-dismiss="modal">
+                      <span aria-hidden="true">&times;</span>
+                      <span class="sr-only">Close</span>
+                    </button>
+                    <p class="dialog-heading-p" id="myModalLabel">{{activeTab}} Bulk Upload</p>
+                </div>
+                <div class="modal-body" style="overflow-x: hidden;padding-top: 0px">
+
+
+                    <div class="container-fluid">
+                        <div class="row row-margin-top-large row-margin-bottom-large text-center">
+                            <div class="col-md-6 light-grey-right-border">
+                                <div class="bulk-upload-img" ng-click="showBulkUploadFileDialog()"></div>
+                                <br>
+                                <span class="bulk-upload-text" ng-click="showBulkUploadFileDialog()">Upload File</span>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{downloadBulkUploadTemplateUrl}}" download>
+                                    <div class="download-template-img"></div>
+                                </a>
+                                <br>
+                                <span class="bulk-upload-text">
+                                      <a href="{{downloadBulkUploadTemplateUrl}}" download>
+                                          Download File Template
+                                      </a>
+                                    </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="background-color: #30373B; min-height: 60px;">
+                    <button type="button" class="cancel-btn" ng-click="closeBulkUploadDialog()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Upload File Dialog -->
+    <div class="modal fade" id="bulkUploadFileDialog" role="dialog" aria-labelledby="modal-title" data-backdrop="static" data-keyboard="false" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #F2F7F8; padding-bottom: 0px !important;" height="100px">
+                    <button type="button" class="close" ng-click="closeBulkUploadFileDialog()">
+                      <span aria-hidden="true">&times;</span>
+                      <span class="sr-only">Close</span>
+                  </button>
+                    <p class="dialog-heading-p" id="modal-title">{{activeTab}} Upload File</p>
+                </div>
+                <div class="modal-body">
+                    <div class="row upload-file-dialog-row">
+                        <div class="col-md-3 bulkFile-heading-col font">Select a File</div>
+                        <div class="col-md-8">
+                            <div ngf-drop ngf-select class="drop-box" ng-model="bulkUploadfile" ngf-drag-over-class="'dragover'" accept=".xls,.xlsx" ngf-pattern="'.xls,.xlsx'">
+                                <img src="images/svg/upload_icon_1.svg" style="height: 40px; width: 40px;" /> &nbsp;&nbsp;Drag file to upload or click to select
+                            </div>
+                            <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+
+
+                        </div>
+                    </div>
+                    <div class="row upload-file-dialog-row">
+                        <div class="col-md-3 bulkFile-heading-col"></div>
+                        <div class="col-md-8 font">File:&nbsp;&nbsp;{{bulkUploadfile.name}}</div>
+                    </div>
+                    <div class="row upload-file-dialog-row">
+                        <div class="col-md-3 bulkFile-heading-col"></div>
+                        <div class="col-md-8">
+                            <b class="fileFormat">* File Format should be .xls,.xlsx</b>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer modal-dialog-footer">
+                    <button type="button" class="cancel-btn" ng-click="closeBulkUploadFileDialog()">Cancel</button>
+                    <button type="button" class="action-btn" ng-click="uploadBulkFile();" data-dismiss="modal">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script type="text/javascript">
+    </script>
+</body>
+
+</html>
